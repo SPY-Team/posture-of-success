@@ -1,7 +1,45 @@
-# cpp_starter_project
+# Client
 
-[![codecov](https://codecov.io/gh/lefticus/cpp_starter_project/branch/master/graph/badge.svg)](https://codecov.io/gh/lefticus/cpp_starter_project)
+Build Instructions
 
-[![Build Status](https://travis-ci.org/lefticus/cpp_starter_project.svg?branch=master)](https://travis-ci.org/lefticus/cpp_starter_project)
+* Install CMake Version 3.15+: https://cmake.org/download/
 
-[![Build status](https://ci.appveyor.com/api/projects/status/ro4lbfoa7n0sy74c/branch/master?svg=true)](https://ci.appveyor.com/project/lefticus/cpp-starter-project/branch/master)
+* Install Conan: https://conan.io/downloads.html
+
+## Windows (Visual Studio 2017)
+
+Run the following commands:
+
+```
+cd client
+mkdir build
+cd build
+cmake -G "Visual Studio 15 2017 Win64" ..
+```
+
+Open the `.sln` file in Visual Studio.
+
+## Mac
+
+Run the following commands:
+
+```
+cd client
+mkdir build
+cd build
+cmake -G "Xcode" ..
+```
+
+Open the `.xcodeproj` folder in Xcode.
+
+## Linux
+
+Run the following commands:
+
+```
+cd client
+mkdir build
+cd build
+cmake ..
+make -j
+```
