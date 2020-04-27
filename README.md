@@ -28,7 +28,7 @@
 
 * 자세 교정 등 척주 건강이 좋아짐
 
-## Our Team
+## Our Team Members
 
 * 구성원:
 * 성시철 (팀장) ![Sung](img/Sung.jpg)
