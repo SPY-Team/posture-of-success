@@ -24,9 +24,42 @@
 
 ![Diagram](img/drawing.png)
 
+아두이노에서는 센서로부터 데이터를 취득한 후, 실시간으로 UDP 통신을 통해 데스크톱 프로그램으로 전송한다. Qt를 사용하여 데스크톱 환경에서 돌아가는 프로그램을 작성하며, 데스크톱 프로그램에서는 자세를 식별한 후 올바르지 않다고 판단 될 경우 UI를 통해 사용자에게 알린다. 데스크톱 프로그램에서는 식별한 자세를 바탕으로 점수를 계산하며, 5분 간격으로 API를 통하여 AWS 서버로 보낸다. AWS 서버에서는 이를 MySQL DB에 저장한다.
+사용자는 웹브라우저를 통하여 점수 페이지에 접속 할 수 있으며, 주변인들의 점수와 순위를 확인 할 수 있다. 또한 사용자의 날짜별 자세 분포를 시각적으로 제공하여 사용자의 자세 개선 여부를 파악할 수 있도록 한다.
+
+## 점수 계산 방식
+
+![Score](img/score.png)
+
+## Wiring
+
+![Wiring](img/wiring.png)
+
+## 핵심 코드
+
+```cpp
+void setup() {
+    pinMode(27, INPUT);
+}
+
+void loop() {
+  int force = analogRead(27);
+    
+  // TODO: send force to Qt Client
+  
+  delay(100);
+}
+```
+
+
+
+## DB Schema
+
+![DB](img/db.png)
+
 ## 기대성과
 
-* 자세 교정 등 척주 건강이 좋아짐
+* 자세 교정 등 척추를 똑바로 하는 자세를 습관화
 
 ## Our Team Members
 

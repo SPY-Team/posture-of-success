@@ -1,6 +1,6 @@
 # Client
 
-Build Instructions
+Build Requirements
 
 * Install CMake Version 3.15+: https://cmake.org/download/
 
