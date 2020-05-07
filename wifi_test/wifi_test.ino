@@ -1,6 +1,10 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 
+#include "esp32-hal-adc.h" // needed for adc pin reset
+#include "soc/sens_reg.h" // needed for adc pin reset
+uint64_t reg_b; // Used to store Pin registers
+
 const char* ssid = "Sogang ICPC Team";
 const char* pwd = "sogang512";
 
@@ -11,9 +15,18 @@ const char* broadcastMsg = "Hello, world!";
 WiFiUDP udp;
 WiFiClient client;
 
-void setup(){
+int pin = 25;
+
+void setup() {
+  // put your setup code here, to run once:
   Serial.begin(115200);
-   WiFi.begin(ssid, pwd);
+  pinMode(pin, INPUT);
+
+  // Save Pin Registers : Do this before begin Wifi
+  reg_b = READ_PERI_REG(SENS_SAR_READ_CTRL2_REG);
+
+  // setup wifi
+  WiFi.begin(ssid, pwd);
   Serial.println("");
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -28,30 +41,45 @@ void setup(){
   udp.begin(udpPort);
 }
 
-void loop(){
+float readForce(int pin) {
+  // ADC Pin Reset: Do this before every analogRead()
+  WRITE_PERI_REG(SENS_SAR_READ_CTRL2_REG, reg_b);
+  //VERY IMPORTANT: DO THIS TO NOT HAVE INVERTED VALUES!
+  SET_PERI_REG_MASK(SENS_SAR_READ_CTRL2_REG, SENS_SAR2_DATA_INV);
+
+  // put your main code here, to run repeatedly:
+  float val = analogRead(pin) / 4096.0f;
+  val = (exp(val) - 1) / 1.718f;
+  return val;
+}
+
+void loop() {
+  // wifi
   Serial.print("Broadcasting: ");
   Serial.println(broadcastMsg);
   udp.beginPacket(udpAddress, udpPort);
   udp.print("Hello, world!");
   udp.endPacket();
-  
-  uint8_t buffer[50] = "hello world";
+
+  uint8_t buffer[50];
   memset(buffer, 0, 50);
-  udp.parsePacket();
-  if(udp.read(buffer, 50) > 0){
+  int packetSize;
+  if((packetSize = udp.parsePacket()))
+  {
+    Serial.printf("packet size= %d\n", packetSize);
+    udp.read(buffer, 50);
     Serial.print("Got server IP: ");
     Serial.println((char *)buffer);
-    if (!client.connect((char*)buffer, 8080)) {
-        Serial.println("Connection to host failed");
-        return;
+    while (!client.connect((char*)buffer, 8081)) {
+        Serial.println("Connection to host failed, trying again...");
     }
-    Serial.print("Connection to host succeed: ");
-    Serial.print((char*)buffer);
-    Serial.print(8080);
+    Serial.printf("Connection to host succeed: %s:%d\n", (char*)buffer, 8081);
     while(true) {
-      client.print("Some data");
-      delay(1000);
+      Serial.print("Sending data to host...\n");
+      client.printf("%.5f", readForce(pin));
+      delay(100);
     }
   }
-  delay(1000);
+
+  delay(100);
 }
