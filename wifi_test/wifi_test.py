@@ -1,46 +1,41 @@
 import socket
 
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.connect(("8.8.8.8", 80))
-
-localIP = s.getsockname()[0]
-s.close()
+ip_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+ip_socket.connect(("8.8.8.8", 80))
+localIP = ip_socket.getsockname()[0]
 print("Got local IP from 8.8.8.8:", localIP)
 
-print("Waiting BroadCast...")
-s=socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.bind(('',8080))
-m=s.recvfrom(8080)
-machineIP = m[1][0]
-s.close()
-print("BroadCast message: ", m[0])
-print("Got machine's local address:", m[1][0])
+tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+tcp_socket.bind((localIP, 8081));
 
-print("Send local IP to machine", localIP)
-s=socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.connect((m[1][0], 8080))
-s.send(localIP.encode())
-s.close()
-print("Done")
+def function():
+    print("Waiting BroadCast...")
+    bc_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    bc_socket.bind(('', 8080))
+    _, (machineIP, _) = bc_socket.recvfrom(8080)
+    print("Got machine's local address:", machineIP)
 
-print("Open Socket Server with port", localIP, 8081)
-s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#while s.connect_ex((localIP, 8081)) != 0:
-#    print("waiting for port...")
-#    pass
-s.bind((localIP, 8081));
-s.listen();
+    print("Send local IP to machine", localIP)
+    bc_socket.connect((machineIP, 8080))
+    bc_socket.send(localIP.encode())
+    print("Done")
 
-print("Waiting machine...")
-conn, addr = s.accept()
-print("Connected to machine: ", conn, addr)
+    print("Open Socket Server with port", localIP, 8081)
+    tcp_socket.listen();
+
+    print("Waiting machine...")
+    conn, addr = tcp_socket.accept()
+    conn.settimeout(1.0)
+    print("Connected to machine: ", addr)
+
+    while True:
+        print("Waiting for message...")
+        try:
+            data = conn.recv(1024)
+        except socket.timeout:
+            break
+        msg = data.decode()
+        print(data.decode())
 
 while True:
-    print("Waiting for message...")
-    data = conn.recv(1024)
-    msg = data.decode()
-    print(data.decode())
-    conn.sendall(data)
-    if msg == 'bye':
-        conn.close()
-        break
+    function()

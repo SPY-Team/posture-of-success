@@ -24,7 +24,7 @@ void setup() {
 
   // Save Pin Registers : Do this before begin Wifi
   reg_b = READ_PERI_REG(SENS_SAR_READ_CTRL2_REG);
-
+  
   // setup wifi
   WiFi.begin(ssid, pwd);
   Serial.println("");
@@ -60,7 +60,7 @@ void loop() {
   udp.beginPacket(udpAddress, udpPort);
   udp.print("Hello, world!");
   udp.endPacket();
-
+  
   uint8_t buffer[50];
   memset(buffer, 0, 50);
   int packetSize;
@@ -70,13 +70,19 @@ void loop() {
     udp.read(buffer, 50);
     Serial.print("Got server IP: ");
     Serial.println((char *)buffer);
-    while (!client.connect((char*)buffer, 8081)) {
+    for (int i = 0; !client.connect((char*)buffer, 8081); ++i) {
+        if (i >= 100) {
+          return;
+        }
         Serial.println("Connection to host failed, trying again...");
     }
     Serial.printf("Connection to host succeed: %s:%d\n", (char*)buffer, 8081);
     while(true) {
-      Serial.print("Sending data to host...\n");
-      client.printf("%.5f", readForce(pin));
+      //Serial.print("Sending data to host...\n");
+      int nBytes = client.printf("%.5f", readForce(pin));
+      if (nBytes == 0) {
+        return;
+      }
       delay(100);
     }
   }
