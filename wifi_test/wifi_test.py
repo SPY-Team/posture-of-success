@@ -29,7 +29,6 @@ def function():
     print("Connected to machine: ", addr)
 
     while True:
-        print("Waiting for message...")
         try:
             data = conn.recv(1024)
         except socket.timeout:
