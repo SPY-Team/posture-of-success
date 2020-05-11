@@ -2,8 +2,9 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon, QPolygonF
-from connect import Device
-
+from score import ScoreManager
+import connect
+import simul
 
 class SystemTrayIcon(QSystemTrayIcon):
     def __init__(self, icon, parent=None):
@@ -104,27 +105,36 @@ class GraphView(QGraphicsView):
 
 
 class PopupWindow(QWidget):
-    def __init__(self, device):
+    def __init__(self, score_manager):
         super().__init__()
 
+        self.score_manager = score_manager
+        self.device = score_manager.device
+
+        # Setup UI
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowStaysOnTopHint | Qt.Dialog | Qt.Tool)
 
         desktop_rect = QApplication.instance().desktop().availableGeometry()
         self.setGeometry(QStyle.alignedRect(Qt.LeftToRight, Qt.AlignHCenter, QSize(600, 200), desktop_rect))
 
-        label = QLabel("...")
-        device.updateNumber.connect(label.setText)
+        self.label = QLabel("...")
 
-        graph_view = GraphView()
+        self.graph_view = GraphView()
 
         main_layout = QVBoxLayout()
-        main_layout.addWidget(label)
-        main_layout.addWidget(graph_view)
+        main_layout.addWidget(self.label)
+        main_layout.addWidget(self.graph_view)
 
         self.setLayout(main_layout)
 
+        # Connect
+        score_manager.updateScore.connect(self.sensor_update)
+
     def start(self):
         self.show()
+
+    def sensor_update(self, score):
+        self.label.setText(str(score))
 
 
 if __name__ == '__main__':
@@ -137,18 +147,21 @@ if __name__ == '__main__':
     tray_icon.show()
 
     # Start background thread
-    thread = QThread()
-    device = Device()
-    device.moveToThread(thread)
-    thread.started.connect(device.run)
-    thread.start()
+    device_thread = QThread()
+    device = connect.Device()
+    device.moveToThread(device_thread)
+    device_thread.started.connect(device.run)
+    device_thread.start()
+
+    # Score calculation
+    score_manager = ScoreManager(device)
 
     # Login Window
     login = LoginWindow(device)
     login.show()
 
     # Popup Window
-    popup = PopupWindow(device)
+    popup = PopupWindow(score_manager)
     login.loginSuccess.connect(popup.start)
 
     sys.exit(app.exec_())

@@ -1,6 +1,6 @@
-from PyQt5.QtCore import *
-
+from PyQt5.QtCore import QObject, pyqtSignal
 import socket
+from typing import Tuple
 
 ip_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 ip_socket.connect(("8.8.8.8", 80))
@@ -12,14 +12,14 @@ tcp_socket.bind((localIP, 8081))
 
 
 class Device(QObject):
-    updateNumber = pyqtSignal(str, name='updateNumber')
+    updateNumber = pyqtSignal(tuple, name='updateNumber')
     connectedChanged = pyqtSignal(bool, name='connected')
 
     def __init__(self):
         super().__init__()
         self.connected = False
 
-    def connect(self):
+    def wait_for_connection(self):
         print("Waiting BroadCast...")
         bc_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         bc_socket.bind(('', 8080))
@@ -29,6 +29,7 @@ class Device(QObject):
         print("Send local IP to machine", localIP)
         bc_socket.connect((machineIP, 8080))
         bc_socket.send(localIP.encode())
+        bc_socket.close()
         print("Done")
 
         print("Open Socket Server with port", localIP, 8081)
@@ -38,15 +39,26 @@ class Device(QObject):
         conn, addr = tcp_socket.accept()
         conn.settimeout(3.0)
         print("Connected to machine: ", addr)
+
+        return conn
+
+    def connect(self):
+        conn = self.wait_for_connection()
         self.set_connected(True)
 
+        data = ''
         while True:
             try:
-                data = conn.recv(1024)
+                data += conn.recv(1024).decode('ascii', 'ignore')
             except socket.timeout:
                 break
-            msg = data.decode()
-            self.updateNumber.emit(msg)
+            split = data.split('\n')
+            if len(split) > 0:
+                for line in split[:-1]:
+                    tup = map(int, line.split(','))
+                    self.updateNumber.emit(tup)
+                data = split[-1]
+
         conn.close()
         self.set_connected(False)
 
