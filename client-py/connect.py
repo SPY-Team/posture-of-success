@@ -29,7 +29,7 @@ def generator():
 
         print("Waiting machine...")
         conn, addr = tcp_socket.accept()
-        conn.settimeout(1.0)
+        conn.settimeout(3.0)
         print("Connected to machine: ", addr)
 
         while True:
@@ -39,6 +39,7 @@ def generator():
                 break
             msg = data.decode()
             yield msg
+        conn.close()
 
 
 class Device(QObject):
