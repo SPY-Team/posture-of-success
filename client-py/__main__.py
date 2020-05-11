@@ -5,6 +5,19 @@ from PyQt5.QtGui import QIcon, QPolygonF
 from connect import Device
 
 
+class SystemTrayIcon(QSystemTrayIcon):
+    def __init__(self, icon, parent=None):
+        QSystemTrayIcon.__init__(self, icon, parent)
+        menu = QMenu(parent)
+        self.exit_action = menu.addAction("종료")
+        self.setContextMenu(menu)
+        menu.triggered.connect(self.exit)
+
+    def exit(self, action):
+        if action == self.exit_action:
+            QCoreApplication.exit()
+
+
 class LoginWindow(QWidget):
     loginSuccess = pyqtSignal()
 
@@ -15,7 +28,7 @@ class LoginWindow(QWidget):
 
         # Setup UI
         self.setWindowTitle("성공의 자세")
-        self.setWindowIcon(QIcon('web.png'))
+        self.setWindowIcon(QIcon('icon.png'))
         self.setGeometry(300, 300, 600, 400)
 
         label = QLabel("로그인")
@@ -94,9 +107,9 @@ class PopupWindow(QWidget):
     def __init__(self, device):
         super().__init__()
 
-        self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowStaysOnTopHint)
-        self.setWindowIcon(QIcon('web.png'))
+        self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowStaysOnTopHint | Qt.Dialog | Qt.Tool)
 
+        desktop_rect = QApplication.instance().desktop().availableGeometry()
         self.setGeometry(QStyle.alignedRect(Qt.LeftToRight, Qt.AlignHCenter, QSize(600, 200), desktop_rect))
 
         label = QLabel("...")
@@ -116,7 +129,12 @@ class PopupWindow(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    desktop_rect = app.desktop().availableGeometry()
+    app.setApplicationName("성공의 자세")
+    app.setQuitOnLastWindowClosed(False)
+
+    # Tray Icon
+    tray_icon = SystemTrayIcon(QIcon('icon.png'))
+    tray_icon.show()
 
     # Start background thread
     thread = QThread()
