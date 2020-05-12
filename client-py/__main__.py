@@ -128,7 +128,7 @@ class PopupWindow(QWidget):
         self.setLayout(main_layout)
 
         # Connect
-        score_manager.updateScore.connect(self.sensor_update)
+        score_manager.device.updateNumber.connect(self.sensor_update)
 
     def start(self):
         self.show()

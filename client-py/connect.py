@@ -55,7 +55,7 @@ class Device(QObject):
             split = data.split('\n')
             if len(split) > 0:
                 for line in split[:-1]:
-                    tup = map(int, line.split(','))
+                    tup = tuple(map(int, line.split(',')))
                     self.updateNumber.emit(tup)
                 data = split[-1]
 
