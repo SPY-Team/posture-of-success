@@ -10,4 +10,4 @@ class ScoreManager(QObject):
         device.updateNumber.connect(self.score_update)
 
     def score_update(self, values):
-        self.updateScore.emit(values[0])
+        self.updateScore.emit(values[1])

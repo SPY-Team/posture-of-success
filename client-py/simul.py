@@ -1,4 +1,5 @@
 from PyQt5.QtCore import QObject, pyqtSignal, QThread
+import random
 
 
 class Device(QObject):
@@ -7,7 +8,7 @@ class Device(QObject):
 
     def run(self):
         while True:
-            self.updateNumber.emit((100, 100, 100, 100, 100, 100))
+            self.updateNumber.emit((random.randint(0, 4095), 100, 100, 100, 100, 100))
             QThread.msleep(100)
 
     def is_connected(self):
