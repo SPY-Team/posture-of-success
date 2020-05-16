@@ -55,7 +55,7 @@ class GraphView(QGraphicsView):
             points = [QPointF(0, height)]
             for i, s in enumerate(scores):
                 x = i / (len(scores) - 1) * width
-                y = height - ((s - min_score) / (max_score - min_score) * height)
+                y = height - ((s - min_score) / (max_score - min_score + 1) * height)
                 points.append(QPointF(x, y))
             points.append(QPointF(width, height))
             polygon = QPolygonF(points)
