@@ -1,0 +1,82 @@
+.signin-container {
+  position: absolute;
+  width: 50%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-align: left;
+}
+
+.form-signin {
+  text-align: left;
+  border-radius: 5px;
+  border: 2px solid #000000;
+  background: #eaeaea;
+  width: 100%;
+  padding: 15px;
+}
+
+.form-control {
+  position: relative;
+
+  box-sizing: border-box;
+
+  font-size: 16px;
+  background-color: transparent;
+  height: auto;
+  width: 100%;
+
+  padding: 10px;
+  margin-bottom: 10px;
+
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid #888888;
+
+  transition: border 0.2s;
+}
+
+.form-control:focus {
+  border-bottom: 2px solid #000000;
+}
+
+.form-control:last-of-type {
+  margin-bottom: 10%;
+}
+
+.button {
+  width: 49%;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 2px solid #000000;
+  transition: background-color 0.2s;
+}
+
+.button:hover {
+  cursor: pointer;
+}
+
+.primary-button {
+  color: white;
+  background-color: #222222;
+  margin-right: 2%;
+}
+.primary-button:hover {
+  background-color: #000000;
+}
+
+.secondary-button {
+  background-color: #eeeeee;
+}
+.secondary-button:hover {
+  background-color: #dddddd;
+}
+
+@media only screen and (max-width: 600px) {
+  .signin-container {
+    width: 100%;
+    height: 100%;
+  }
+}
