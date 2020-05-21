@@ -26,7 +26,7 @@ export default class extends Component {
         <div className="form-signin">
           <h1>Hello, {this.state.email}!</h1>
           <p>Your data is {this.state.data}</p>
-          <button className="button primary-button" onClick={this.props.logout}> logout </button>
+          <button className="button primary-button" onClick={this.props.signout}> logout </button>
         </div>
       </div>
     )

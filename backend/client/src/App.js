@@ -16,8 +16,8 @@ function App() {
 
   const auth = token !== null;
 
-  const login = ({ email, password }) => {
-    fetch('/api/login', {
+  const signin = ({ email, password }) => {
+    fetch('/api/signin', {
       method: 'post',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ email, password })
@@ -29,7 +29,20 @@ function App() {
       setToken(json)
     });
   };
-  const logout = () => { setToken(null); removeCookie('user') }
+
+  const signup = ({ username, email, password }) => {
+    fetch('/api/signup', {
+      method: 'post',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ username, email, password })
+    })
+    .then(res => res.json())
+    .catch((err) => console.error())
+    .then(json => {
+    });
+  };
+
+  const signout = () => { setToken(null); removeCookie('user') }
 
   useEffect(() => {
     if (cookies.user && cookies.user !== 'undefined') setToken(cookies.user);
@@ -41,9 +54,9 @@ function App() {
         <div className="auth-inner">
           <Switch>
             <Redirect exact path='/' to='/home'/>
-            <Route path='/sign-in' render={() => <SignIn token={token} login={login}/>} />
-            <Route path="/sign-up" component={SignUp} />
-            <AuthRoute token={token} path='/home' render={() => <Home token={token} logout={logout}/>} />
+            <Route path='/sign-in' render={() => <SignIn token={token} signin={signin}/>} />
+            <Route path="/sign-up" render={() => <SignUp signup={signup}/>} />
+            <AuthRoute token={token} path='/home' render={() => <Home token={token} signout={signout}/>} />
           </Switch>
         </div>
       </div>

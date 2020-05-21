@@ -1,5 +1,13 @@
 var express = require('express');
 var jwt = require('jsonwebtoken');
+var mysql = require('mysql');
+
+var con = mysql.createConnection({
+  host: "localhost",
+  user: "admin",
+  password: "posture-of-success",
+  database: "mydb"
+});
 
 var router = express.Router();
 
@@ -17,7 +25,7 @@ var data = [
   [ 0, 0, 0, 0 ],
 ];
 
-router.post('/data', function(req, res, next) {
+router.post('/data', (req, res) => {
   var { token } = req.body;
   var { uid } = jwt.verify(token, "Posture-of-Success");
   if (data[uid]) {
@@ -27,7 +35,7 @@ router.post('/data', function(req, res, next) {
   }
 }) 
 
-router.post('/login', function(req, res, next) {
+router.post('/signin', (req, res) => {
   var valid = false;
   var { email, password } = req.body;
 
@@ -42,5 +50,20 @@ router.post('/login', function(req, res, next) {
     res.json(token);
   }
 });
+
+router.post('/signup', (req, res) => {
+  var { username, email, password } = req.body;
+  con.connect((err) => {
+    if (err) throw err;
+    var sql = "INSERT INTO user (username, email, password) VALUES (?,?,?)";
+    var params = [username, email, password];
+    con.query(sql, params, (err, result) => {
+      if (err) throw err;
+      console.log("query :", sql);
+    });
+  });
+});
+
+
 
 module.exports = router;

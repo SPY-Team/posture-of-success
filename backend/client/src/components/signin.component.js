@@ -9,7 +9,7 @@ export default class extends Component {
     this.state = { email: "", password: "" };
   }
   handleClick = () => {
-    this.props.login(this.state);
+    this.props.signin(this.state);
   }
   render() {
     const from = useLocation.from || { pathname: "/home" };
