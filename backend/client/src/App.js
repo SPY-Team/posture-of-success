@@ -22,13 +22,17 @@ function App() {
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ email, password })
     })
-    .then(res => res.json())
-    .catch((err) => console.error())
-    .then(json => {
-      setCookie('user', json);
-      setToken(json)
+    .then(res => {
+      if (!res.ok) res.text().then(text => alert(text));
+      else { 
+        res.json()
+        .then(json => {
+          setCookie('user', json);
+          setToken(json)
+        });
+      }
     });
-  };
+  }
 
   const signup = ({ username, email, password }) => {
     fetch('/api/signup', {
@@ -36,9 +40,14 @@ function App() {
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ username, email, password })
     })
-    .then(res => res.json())
-    .catch((err) => console.error())
-    .then(json => {
+    .then(res => {
+      if (!res.ok) res.text().then(text => alert(text));
+      else { 
+        res.json()
+        .then(json => {
+          alert("done");
+        });
+      }
     });
   };
 

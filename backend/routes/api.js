@@ -9,58 +9,50 @@ var con = mysql.createConnection({
   database: "mydb"
 });
 
+con.connect();
+
 var router = express.Router();
-
-var users = [
-  "admin@posture.success",
-  "first@posture.success",
-  "second@posture.success",
-  "guest@posture.success"
-];
-
-var data = [
-  [ 1, 2, 3, 4 ], 
-  [ 4, 3, 2, 1 ],
-  [ 9, 8, 7, 6 ],
-  [ 0, 0, 0, 0 ],
-];
 
 router.post('/data', (req, res) => {
   var { token } = req.body;
   var { uid } = jwt.verify(token, "Posture-of-Success");
-  if (data[uid]) {
-    res.json({ email: users[uid], data: data[uid] });
-  } else {
-    res.status(403).json({message: "Rejected!"});
-  }
-}) 
+  var sql = "select * from users where uid=?";
+  var params = [uid];
+  con.query(sql, params, (err, result) => {
+    if (err) throw err;
+    if (result.length == 0) {
+      res.status(403).send("Rejected!");
+    } else {
+      res.json({ email: result[0].email, data: result[0].username });
+    }
+  });
+}) ;
 
 router.post('/signin', (req, res) => {
   var valid = false;
   var { email, password } = req.body;
-
-  if (users.indexOf(email) != -1) {
-    let token = jwt.sign({ uid: users.indexOf(email) }, "Posture-of-Success");
-    res.cookie('jwt',token, { httpOnly: true, maxAge: 3600000 })
-    res.json(token);
-  } else {
-    //res.status(403).json({message: "Rejected!"});
-    let token = jwt.sign({ uid: 3 }, "Posture-of-Success");
-    res.cookie('jwt',token, { httpOnly: true, maxAge: 3600000 })
-    res.json(token);
-  }
+  var sql = "select uid from users where email=? and password=?";
+  var params = [email, password];
+  con.query(sql, params, (err, result) => {
+    if (err) throw err;
+    if (result.length == 0) {
+      res.status(403).send("Rejected!");
+    } else {
+      let token = jwt.sign({ uid: result[0].uid }, "Posture-of-Success");
+      res.cookie('jwt',token, { httpOnly: true, maxAge: 3600000 })
+      res.json(token);
+    }
+    console.log(result);
+  });
 });
 
 router.post('/signup', (req, res) => {
   var { username, email, password } = req.body;
-  con.connect((err) => {
+  var sql = "INSERT INTO users (username, email, password) VALUES (?,?,?)";
+  var params = [username, email, password];
+  con.query(sql, params, (err, result) => {
     if (err) throw err;
-    var sql = "INSERT INTO user (username, email, password) VALUES (?,?,?)";
-    var params = [username, email, password];
-    con.query(sql, params, (err, result) => {
-      if (err) throw err;
-      console.log("query :", sql);
-    });
+    console.log("query :", sql);
   });
 });
 
