@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
-import { withCookies, useCookies } from "react-cookie";
+import { useCookies } from "react-cookie";
 import AuthRoute from './AuthRoute';
 
 import SignIn from "./components/signin.component";
@@ -13,8 +13,6 @@ function App() {
 
   const [ token, setToken ] = useState(null);
   const [ cookies, setCookie, removeCookie ] = useCookies(['user']);
-
-  const auth = token !== null;
 
   const signin = ({ email, password }) => {
     fetch('/api/signin', {
@@ -59,16 +57,13 @@ function App() {
 
   return (<Router>
     <div className="App">
-      <div className="auth-wrapper">
-        <div className="auth-inner">
-          <Switch>
-            <Redirect exact path='/' to='/home'/>
-            <Route path='/sign-in' render={() => <SignIn token={token} signin={signin}/>} />
-            <Route path="/sign-up" render={() => <SignUp signup={signup}/>} />
-            <AuthRoute token={token} path='/home' render={() => <Home token={token} signout={signout}/>} />
-          </Switch>
-        </div>
-      </div>
+      <Switch>
+        <Redirect exact path='/' to='/home'/>
+        <Route path='/sign-in' render={() => <SignIn token={token} signin={signin}/>} />
+        <Route path="/sign-up" render={() => <SignUp signup={signup}/>} />
+        <Route path='/home' render={() => <Home token={token} signout={signout}/>} />
+        {/*<AuthRoute token={token} path='/home' render={() => <Home token={token} signout={signout}/>} />*/}
+      </Switch>
     </div></Router>
   );
 }
