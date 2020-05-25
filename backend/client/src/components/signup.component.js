@@ -26,7 +26,7 @@ export default class extends Component {
           ></input><br></br>
           <div className="button-container">
             <button className="button primary-button" onClick={this.handleClick}>Submit</button>
-            <Link to="sign-in">
+            <Link to="signin">
               <button className="button secondary-button" type="submit">Back</button>
             </Link>
           </div>

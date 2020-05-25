@@ -59,10 +59,9 @@ function App() {
     <div className="App">
       <Switch>
         <Redirect exact path='/' to='/home'/>
-        <Route path='/sign-in' render={() => <SignIn token={token} signin={signin}/>} />
-        <Route path="/sign-up" render={() => <SignUp signup={signup}/>} />
-        <Route path='/home' render={() => <Home token={token} signout={signout}/>} />
-        {/*<AuthRoute token={token} path='/home' render={() => <Home token={token} signout={signout}/>} />*/}
+        <Route path='/signin' render={() => <SignIn token={token} signin={signin}/>} />
+        <Route path='/signup' render={() => <SignUp signup={signup}/>} />
+        <AuthRoute token={token} path='/home' render={() => <Home token={token} signout={signout}/>} />
       </Switch>
     </div></Router>
   );

@@ -7,6 +7,7 @@ export default class extends Component {
     this.state = { email: "", password: "" };
   }
   handleClick = () => {
+	  console.log(this.state);
     this.props.signin(this.state);
   }
   render() {
@@ -19,15 +20,15 @@ export default class extends Component {
           <h1>성공의 자세 🪑</h1>
           <h3>Posture of Success</h3>
           <input type="email" placeholder="Email address" required="" autoFocus=""
-            onChange={(e) => { this.setState({emale: e.target.value }); }}
+            onChange={(e) => { this.setState({ email: e.target.value }); }}
           /><br/>
           <input type="password" placeholder="Password" required=""
-            onChange={(e) => { this.setState({password: e.target.value }); }}
+            onChange={(e) => { this.setState({ password: e.target.value }); }}
             onKeyDown={ (e) => { if ( e.keyCode ===13 ) this.handleClick(); } }
           /><br/>
           <div className="button-container">
             <button className="button primary-button" type="button" onClick={this.handleClick}>Sign in</button>
-            <Link to="/sign-up">
+            <Link to="/signup">
               <button className="button secondary-button">Sign up</button>
             </Link>
           </div>

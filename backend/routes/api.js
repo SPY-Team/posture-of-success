@@ -13,6 +13,23 @@ con.connect();
 
 var router = express.Router();
 
+router.post('/device/signin', (req, res) => {
+  var valid = false;
+  var { email, password } = req.body;
+  var sql = "select uid from users where email=? and password=?";
+  var params = [email, password];
+
+  console.log( req.body );
+  con.query(sql, params, (err, result) => {
+    if (err) throw err;
+    if (result.length == 0) {
+      res.json({ success: false });
+    } else {
+      res.json({ success: true });
+    }
+  });
+});
+
 router.post('/data', (req, res) => {
   var { token } = req.body;
   var { uid } = jwt.verify(token, "Posture-of-Success");
@@ -42,7 +59,6 @@ router.post('/signin', (req, res) => {
       res.cookie('jwt',token, { httpOnly: true, maxAge: 3600000 })
       res.json(token);
     }
-    console.log(result);
   });
 });
 
@@ -52,7 +68,6 @@ router.post('/signup', (req, res) => {
   var params = [username, email, password];
   con.query(sql, params, (err, result) => {
     if (err) throw err;
-    console.log("query :", sql);
   });
 });
 
