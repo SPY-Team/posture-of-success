@@ -1,15 +1,27 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QVBoxLayout, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QThread
 from PyQt5.QtGui import QIcon
+import network
 
 
 class LoginWindow(QWidget):
+    tryLogin = pyqtSignal(dict, name="tryLogin")
     loginSuccess = pyqtSignal()
 
     def __init__(self, device):
         super().__init__()
 
         self.device = device
+        self.is_waiting = False
+
+        # Create networking thread
+        self.network_thread = QThread()
+        self.login = network.Network()
+        self.login.moveToThread(self.network_thread)
+        self.tryLogin.connect(self.login.request)
+        self.login.response.connect(self.login_response)
+        self.login.failure.connect(self.network_failure)
+        self.network_thread.start()
 
         # Setup UI
         self.setWindowTitle("성공의 자세")
@@ -18,15 +30,15 @@ class LoginWindow(QWidget):
 
         label = QLabel("로그인")
 
-        id_field = QLineEdit()
-        id_field.setPlaceholderText("ID")
-        pw_field = QLineEdit()
-        pw_field.setPlaceholderText("Password")
-        pw_field.setEchoMode(QLineEdit.Password)
+        self.id_field = QLineEdit()
+        self.id_field.setPlaceholderText("ID")
+        self.pw_field = QLineEdit()
+        self.pw_field.setPlaceholderText("Password")
+        self.pw_field.setEchoMode(QLineEdit.Password)
 
         fields_box = QVBoxLayout()
-        fields_box.addWidget(id_field)
-        fields_box.addWidget(pw_field)
+        fields_box.addWidget(self.id_field)
+        fields_box.addWidget(self.pw_field)
 
         login_button = QPushButton("로그인")
         login_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
@@ -61,11 +73,30 @@ class LoginWindow(QWidget):
 
         # Connect
         self.update_status()
+        self.device.connectedChanged.connect(self.update_status)
         login_button.clicked.connect(self.login_clicked)
 
     def login_clicked(self):
-        self.loginSuccess.emit()
-        self.close()
+        if not self.is_waiting:
+            print("login clicked")
+            self.is_waiting = True
+            data = {"id": self.id_field.text(),
+                    "pw": self.pw_field.text()}
+            print(data)
+            self.tryLogin.emit(data)
+
+    def login_response(self, response):
+        self.is_waiting = False
+        print("login response")
+        if "result" in response and response["result"]:
+            self.loginSuccess.emit()
+            self.close()
+        else:
+            print("login failed")
+
+    def network_failure(self):
+        self.is_waiting = False
+        print("Network failure!")
 
     def update_status(self):
         if self.device.is_connected():

@@ -19,7 +19,7 @@ if __name__ == '__main__':
     tray_icon = SystemTrayIcon(QIcon('icon.png'))
     tray_icon.show()
 
-    # Start background thread
+    # Start device thread
     device_thread = QThread()
     device = connect.Device()
     device.moveToThread(device_thread)

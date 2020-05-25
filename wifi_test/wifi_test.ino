@@ -5,9 +5,6 @@
 #include "soc/sens_reg.h" // needed for adc pin reset
 uint64_t reg_b; // Used to store Pin registers
 
-const char* ssid = "Sogang ICPC Team";
-const char* pwd = "sogang512";
-
 const char* udpAddress = "192.168.0.255";
 const int udpPort = 8080;
 const char* broadcastMsg = "Hello, world!";
@@ -45,13 +42,28 @@ void setup() {
   reg_b = READ_PERI_REG(SENS_SAR_READ_CTRL2_REG);
   
   // setup wifi
-  WiFi.begin(ssid, pwd);
-  Serial.println("");
+  
+  //Init WiFi as Station, start SmartConfig
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.beginSmartConfig();
 
+  //Wait for SmartConfig packet from mobile
+  Serial.println("Waiting for SmartConfig.");
+  while (!WiFi.smartConfigDone()) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("SmartConfig received.");
+
+  //Wait for WiFi to connect to AP
+  Serial.println("Waiting for WiFi");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
+  
   Serial.println("");
   Serial.print("Connected to ");
   Serial.println(ssid);
