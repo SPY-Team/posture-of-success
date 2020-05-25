@@ -16,7 +16,7 @@ var router = express.Router();
 router.post('/device/signin', (req, res) => {
   var valid = false;
   var { email, password } = req.body;
-  var sql = "select uid from users where email=? and password=?";
+  var sql = "select username from users where email=? and password=?";
   var params = [email, password];
 
   console.log( req.body );
@@ -32,9 +32,9 @@ router.post('/device/signin', (req, res) => {
 
 router.post('/data', (req, res) => {
   var { token } = req.body;
-  var { uid } = jwt.verify(token, "Posture-of-Success");
-  var sql = "select * from users where uid=?";
-  var params = [uid];
+  var { email } = jwt.verify(token, "Posture-of-Success");
+  var sql = "select email from users where email=?";
+  var params = [email];
   con.query(sql, params, (err, result) => {
     if (err) throw err;
     if (result.length == 0) {
@@ -48,14 +48,14 @@ router.post('/data', (req, res) => {
 router.post('/signin', (req, res) => {
   var valid = false;
   var { email, password } = req.body;
-  var sql = "select uid from users where email=? and password=?";
+  var sql = "select email from users where email=? and password=?";
   var params = [email, password];
   con.query(sql, params, (err, result) => {
     if (err) throw err;
     if (result.length == 0) {
       res.status(403).send("Rejected!");
     } else {
-      let token = jwt.sign({ uid: result[0].uid }, "Posture-of-Success");
+      let token = jwt.sign({ email: result[0].email }, "Posture-of-Success");
       res.cookie('jwt',token, { httpOnly: true, maxAge: 3600000 })
       res.json(token);
     }
