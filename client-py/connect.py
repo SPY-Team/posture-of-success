@@ -1,6 +1,5 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 import socket
-from typing import Tuple
 
 ip_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 ip_socket.connect(("8.8.8.8", 80))
@@ -9,6 +8,31 @@ print("Got local IP from 8.8.8.8:", localIP)
 
 tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcp_socket.bind((localIP, 8081))
+tcp_socket.settimeout(3.0)
+
+
+def wait_for_connection():
+    print("Waiting BroadCast...")
+    bc_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    bc_socket.bind(('', 8080))
+    _, (machineIP, _) = bc_socket.recvfrom(8080)
+    print("Got machine's local address:", machineIP)
+
+    print("Send local IP to machine", localIP)
+    bc_socket.connect((machineIP, 8080))
+    bc_socket.send(localIP.encode())
+    bc_socket.close()
+    print("Done")
+
+    print("Open Socket Server with port", localIP, 8081)
+    tcp_socket.listen()
+
+    print("Waiting machine...")
+    conn, addr = tcp_socket.accept()
+    conn.settimeout(3.0)
+    print("Connected to machine: ", addr)
+
+    return conn
 
 
 class Device(QObject):
@@ -19,31 +43,12 @@ class Device(QObject):
         super().__init__()
         self.connected = False
 
-    def wait_for_connection(self):
-        print("Waiting BroadCast...")
-        bc_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        bc_socket.bind(('', 8080))
-        _, (machineIP, _) = bc_socket.recvfrom(8080)
-        print("Got machine's local address:", machineIP)
-
-        print("Send local IP to machine", localIP)
-        bc_socket.connect((machineIP, 8080))
-        bc_socket.send(localIP.encode())
-        bc_socket.close()
-        print("Done")
-
-        print("Open Socket Server with port", localIP, 8081)
-        tcp_socket.listen()
-
-        print("Waiting machine...")
-        conn, addr = tcp_socket.accept()
-        conn.settimeout(3.0)
-        print("Connected to machine: ", addr)
-
-        return conn
-
     def connect(self):
-        conn = self.wait_for_connection()
+        try:
+            conn = wait_for_connection()
+        except socket.timeout:
+            return False
+
         self.set_connected(True)
 
         data = ''
@@ -61,6 +66,7 @@ class Device(QObject):
 
         conn.close()
         self.set_connected(False)
+        return True
 
     def run(self):
         while True:
