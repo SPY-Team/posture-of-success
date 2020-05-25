@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     # Start device thread
     device_thread = QThread()
-    device = connect.Device()
+    device = simul.Device()
     device.moveToThread(device_thread)
     device_thread.started.connect(device.run)
     device_thread.start()
