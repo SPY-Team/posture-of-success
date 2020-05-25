@@ -1,7 +1,9 @@
 import sys
+
 from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtGui import QIcon
+
 from score import ScoreManager
 from tray_icon import SystemTrayIcon
 from login_window import LoginWindow
