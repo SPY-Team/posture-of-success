@@ -12,7 +12,7 @@ body {
   box-sizing: border-box;
   -webkit-transition-timing-function: ease-in-out;
   transition-timing-function: ease-in-out;
-  font-family: 'FiraSans', 'NotoSansKR', sans-serif;
+  font-family: 'Fira Sans', 'Noto Sans KR', sans-serif;
 }
 
 a:focus,
@@ -189,6 +189,7 @@ tr:nth-child(even) {
   align-items: center;
   justify-content: center;
   padding: 5px 30px 5px 30px;
+  display: inline;
 }
 
 .score-container table {
