@@ -94,7 +94,7 @@ class PopupWindow(QWidget):
         dpi_x = desktop.logicalDpiX()
         dpi_y = desktop.logicalDpiY()
         popup_size = QSize(dpi_x * 5, dpi_y * 3)
-        self.setGeometry(QStyle.alignedRect(Qt.LeftToRight, Qt.AlignVCenter, popup_size, desktop_rect))
+        self.setGeometry(QStyle.alignedRect(Qt.RightToLeft, Qt.AlignVCenter, popup_size, desktop_rect))
 
         self.label = QLabel("...")
 
