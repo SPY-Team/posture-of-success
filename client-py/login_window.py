@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QVBoxLayout, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox\
-    , QErrorMessage
-from PyQt5.QtCore import pyqtSignal, QUrl, QCoreApplication
+    , QErrorMessage, QCheckBox
+from PyQt5.QtCore import pyqtSignal, QUrl, QCoreApplication, QSettings
 from PyQt5.QtGui import QIcon, QDesktopServices, QCloseEvent
 from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager, QNetworkReply
 import json
@@ -13,6 +13,8 @@ class LoginWindow(QWidget):
 
     def __init__(self, device):
         super().__init__()
+
+        self.settings = QSettings("Capstone", "posture-of-success")
 
         self.device = device
         self.is_waiting = False
@@ -29,9 +31,9 @@ class LoginWindow(QWidget):
 
         label = QLabel("로그인")
 
-        self.id_field = QLineEdit()
+        self.id_field = QLineEdit(self.settings.value("login/id", ""))
         self.id_field.setPlaceholderText("Email")
-        self.pw_field = QLineEdit()
+        self.pw_field = QLineEdit(self.settings.value("login/pw", ""))
         self.pw_field.setPlaceholderText("Password")
         self.pw_field.setEchoMode(QLineEdit.Password)
 
@@ -49,9 +51,12 @@ class LoginWindow(QWidget):
         form_box.addWidget(self.login_button)
         form_box.addWidget(register_button)
 
+        self.save_login_checkbox = QCheckBox("다음부터 자동 로그인")
+
         login_box = QVBoxLayout()
         login_box.addWidget(label)
         login_box.addLayout(form_box)
+        login_box.addWidget(self.save_login_checkbox)
 
         login_group = QGroupBox()
         login_group.setLayout(login_box)
@@ -76,6 +81,10 @@ class LoginWindow(QWidget):
         self.login_button.clicked.connect(self.login_clicked)
         register_button.clicked.connect(self.register)
 
+        if self.settings.value("login/id", "") != "":
+            self.save_login_checkbox.setChecked(True)
+            self.login_clicked()
+
     def login_clicked(self):
         if not self.is_waiting:
             print("login clicked")
@@ -98,6 +107,8 @@ class LoginWindow(QWidget):
             reply_json = json.loads(reply)
             print(reply_json)
             if "success" in reply_json and reply_json["success"]:
+                if self.save_login_checkbox.isChecked():
+                    self.save_login(self.id_field.text(), self.pw_field.text())
                 self.logged_in = True
                 self.loginSuccess.emit()
                 self.close()
@@ -105,6 +116,10 @@ class LoginWindow(QWidget):
                 self.error_dialog.showMessage('아이디나 비밀번호가 맞지 않습니다!')
         else:
             self.error_dialog.showMessage("서버 연결에 실패했습니다. 에러 코드=" + str(err))
+
+    def save_login(self, id, pw):
+        self.settings.setValue("login/id", id)
+        self.settings.setValue("login/pw", pw)
 
     def register(self):
         QDesktopServices.openUrl(QUrl(SERVER_BASE_ADDR + "/signup"))
