@@ -44,13 +44,13 @@ class GraphView(QGraphicsView):
         width = size.width()
         height = size.height()
 
-        self.score_text.setDocument(make_text(str(score)))
+        self.score_text.setDocument(make_text("{:.2f}".format(score)))
         self.score_text.setX((width - self.score_text.boundingRect().width()) // 2)
         self.score_text.setY((height - self.score_text.boundingRect().height()) // 2)
 
         self.msg_text.setDocument(make_text(msg))
 
-        window_size = 100
+        window_size = 10000
         scores = self.score_list[-window_size:]
 
         if len(scores) > 1:
@@ -59,7 +59,7 @@ class GraphView(QGraphicsView):
             points = [QPointF(0, height)]
             for i, s in enumerate(scores):
                 x = i / (len(scores) - 1) * width
-                y = height - ((s - min_score) / (max_score - min_score + 1) * height)
+                y = height - ((s - min_score) / (max_score - min_score + 0.0001) * height)
                 points.append(QPointF(x, y))
             points.append(QPointF(width, height))
             polygon = QPolygonF(points)
@@ -93,15 +93,15 @@ class PopupWindow(QWidget):
         desktop_rect = desktop.availableGeometry()
         dpi_x = desktop.logicalDpiX()
         dpi_y = desktop.logicalDpiY()
-        popup_size = QSize(dpi_x, dpi_y)
-        self.setGeometry(QStyle.alignedRect(Qt.LeftToRight, Qt.AlignHCenter, popup_size, desktop_rect))
+        popup_size = QSize(dpi_x * 5, dpi_y * 3)
+        self.setGeometry(QStyle.alignedRect(Qt.LeftToRight, Qt.AlignVCenter, popup_size, desktop_rect))
 
         self.label = QLabel("...")
 
         self.graph_view = GraphView()
 
         main_layout = QVBoxLayout()
-        #main_layout.addWidget(self.label)
+        main_layout.addWidget(self.label)
         main_layout.addWidget(self.graph_view)
         main_layout.setContentsMargins(0, 0, 0, 0)
 

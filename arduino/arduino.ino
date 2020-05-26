@@ -12,13 +12,13 @@ const char* broadcastMsg = "Hello, world!";
 WiFiUDP udp;
 WiFiClient client;
 
-int left_back_pin = 27;
-int left_hip_pin = 26;
-int left_thigh_pin = 25;
+int left_back_pin = 26;
+int left_hip_pin = 25;
+int left_thigh_pin = 27;
 
-int right_back_pin = 33;
-int right_hip_pin = 32;
-int right_thigh_pin = 35;
+int right_back_pin = 32;
+int right_hip_pin = 35;
+int right_thigh_pin = 33;
 
 int left_back_val;
 int left_hip_val;
@@ -66,7 +66,7 @@ void setup() {
   
   Serial.println("");
   Serial.print("Connected to ");
-  Serial.println(ssid);
+  Serial.println(WiFi.SSID());
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
   udp.begin(udpPort);
