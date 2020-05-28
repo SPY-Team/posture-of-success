@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QMovie
 from PyQt5.QtCore import pyqtSignal, QCoreApplication, Qt
 
 
@@ -20,9 +20,16 @@ class CalibrationWindow(QWidget):
         self.label.setProperty("class", "big")
         self.label.setAlignment(Qt.AlignHCenter)
 
+        movie = QMovie("loader.gif")
+        movie.start()
+        busy_label = QLabel()
+        busy_label.setMovie(movie)
+        busy_label.setAlignment(Qt.AlignHCenter)
+
         layout = QVBoxLayout()
         layout.addStretch(1)
         layout.addWidget(self.label)
+        layout.addWidget(busy_label)
         layout.addStretch(1)
         layout.setContentsMargins(50, 50, 50, 50)
         layout.setSpacing(20)
@@ -64,6 +71,7 @@ class CalibrationWindow(QWidget):
     def sensor_update(self, values):
         if self.user_email is not None:
             self.finish(values)
+            #pass
 
     def logout(self):
         self.user_email = None

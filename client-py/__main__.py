@@ -64,7 +64,7 @@ if __name__ == '__main__':
         font-size: 20px;
         background-color: transparent;
         border: none;
-        border-bottom: 3px solid #dddddd;
+        border-bottom: 2px solid #dddddd;
         margin: 5px 0px;
     }
     QLineEdit:focus {
