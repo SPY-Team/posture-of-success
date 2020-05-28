@@ -42,6 +42,7 @@ class Device(QObject):
     def __init__(self):
         super().__init__()
         self.connected = False
+        self.logfile = open("log.txt", "a")
 
     def connect(self):
         try:
@@ -61,6 +62,7 @@ class Device(QObject):
             if len(split) > 0:
                 for line in split[:-1]:
                     tup = tuple(map(int, line.split(',')))
+                    self.logfile.write(str(tup) + "\n")
                     self.updateNumber.emit(tup)
                 data = split[-1]
 

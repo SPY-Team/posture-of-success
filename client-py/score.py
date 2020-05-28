@@ -8,7 +8,7 @@ class ScoreManager(QObject):
     def __init__(self, device):
         super().__init__()
         self.device = device
-        self.score = 1000
+        self.score = 0
         self.x = 0
         self.cooltime = 10
         device.updateNumber.connect(self.score_update)

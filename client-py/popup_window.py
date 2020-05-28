@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QWidget, QApplication, QStyle, QLabel, QVBoxLayout, \
     QDesktopWidget
 from PyQt5.QtGui import QPolygonF, QPen, QBrush, QColor, QPainter, QFont, QTextDocument, QTextCharFormat, QTextCursor, \
-    QCloseEvent, QRgba64
+    QCloseEvent
 from PyQt5.QtCore import Qt, QSize, QPointF
 
 
@@ -20,7 +20,7 @@ class GraphView(QGraphicsView):
         super().__init__()
 
         self.setScene(QGraphicsScene())
-        self.setBackgroundBrush(QColor(QRgba64.fromRgba(43, 43, 43, 10)))
+        self.setBackgroundBrush(QColor.fromRgb(42, 42, 42, 10))
         self.setRenderHint(QPainter.Antialiasing)
 
         pen = QPen(Qt.transparent)
@@ -75,6 +75,7 @@ class PopupWindow(QWidget):
     def __init__(self, score_manager):
         super().__init__()
 
+        self.close_requested = False
         self.score_manager = score_manager
         self.device = score_manager.device
 
@@ -118,4 +119,11 @@ class PopupWindow(QWidget):
         self.label.setText(str(score))
 
     def closeEvent(self, event: QCloseEvent):
-        event.ignore()
+        print("closeEvent")
+        if not self.close_requested:
+            event.ignore()
+        self.close_requested = False
+
+    def real_close(self):
+        self.close_requested = True
+        self.close()
