@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap');
+
 html,
 body {
   background-color: #222222;
@@ -10,6 +12,7 @@ body {
   box-sizing: border-box;
   -webkit-transition-timing-function: ease-in-out;
   transition-timing-function: ease-in-out;
+  font-family: 'Fira Sans', 'Noto Sans KR', sans-serif;
 }
 
 a:focus,
@@ -186,6 +189,7 @@ tr:nth-child(even) {
   align-items: center;
   justify-content: center;
   padding: 5px 30px 5px 30px;
+  display: inline;
 }
 
 .score-container table {

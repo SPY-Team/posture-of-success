@@ -7,12 +7,11 @@ export default class extends Component {
     this.state = { email: "", password: "" };
   }
   handleClick = () => {
-	  console.log(this.state);
     this.props.signin(this.state);
   }
   render() {
     const from = useLocation.from || { pathname: "/home" };
-    if (this.props.token) return <Redirect to={from} />
+    if (this.props.token) return <Redirect to={from} />;
 
     return (
       <div className="center">

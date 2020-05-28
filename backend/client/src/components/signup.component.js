@@ -21,7 +21,7 @@ export default class extends Component {
           <input type="email" placeholder="Email address" required=""
             onChange={(e) => { this.setState({ email: e.target.value }); }}
           ></input><br></br>
-          <input type="password" placeholder="Password" required=""
+          <input type="password" placeholder="Password (평문으로 저장되니 사용하지 않는 비밀번호를 입력해주세요)" required=""
             onChange={(e) => { this.setState({password: e.target.value }); }}
           ></input><br></br>
           <div className="button-container">
