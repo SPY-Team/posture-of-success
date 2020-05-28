@@ -5,13 +5,11 @@ import math
 class ScoreManager(QObject):
     updateScore = pyqtSignal(float, str, name='updateScore')
 
-    def __init__(self, device):
+    def __init__(self, score):
         super().__init__()
-        self.device = device
-        self.score = 0
+        self.score = score
         self.x = 0
         self.cooltime = 10
-        device.updateNumber.connect(self.score_update)
 
     def score_update(self, values):
         lhip, lthigh, lback, rhip, rthigh, rback = values

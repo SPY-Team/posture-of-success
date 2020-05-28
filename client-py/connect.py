@@ -7,6 +7,7 @@ localIP = ip_socket.getsockname()[0]
 print("Got local IP from 8.8.8.8:", localIP)
 
 tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+tcp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 tcp_socket.bind((localIP, 8081))
 tcp_socket.settimeout(3.0)
 

@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QVBoxLayout, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox\
-    , QErrorMessage, QCheckBox, QGridLayout, QFrame
+from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QVBoxLayout, QPushButton \
+    , QErrorMessage, QCheckBox, QGridLayout
 from PyQt5.QtCore import pyqtSignal, QUrl, QCoreApplication, QSettings, Qt
 from PyQt5.QtGui import QIcon, QDesktopServices, QCloseEvent
 from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager, QNetworkReply
@@ -9,7 +9,7 @@ from config import SERVER_BASE_ADDR
 
 class LoginWindow(QWidget):
     tryLogin = pyqtSignal(dict, name="tryLogin")
-    loginSuccess = pyqtSignal()
+    loginSuccess = pyqtSignal(str, float, object, name="loginSuccess")
 
     def __init__(self, device):
         super().__init__()
@@ -30,7 +30,7 @@ class LoginWindow(QWidget):
         self.setGeometry(300, 300, 560, 460)
 
         label = QLabel("로그인")
-        label.setProperty("class", "big")
+        label.setProperty("class", "huge")
 
         self.id_field = QLineEdit(self.settings.value("login/id", ""))
         self.id_field.setPlaceholderText("Email")
@@ -70,6 +70,7 @@ class LoginWindow(QWidget):
 
         frame = QWidget()
         frame.setLayout(login_box)
+        frame.setProperty("class", "frame")
 
         main_layout = QVBoxLayout()
         main_layout.addWidget(frame)
@@ -79,7 +80,7 @@ class LoginWindow(QWidget):
         self.setProperty("class", "root")
         self.setContentsMargins(0, 0, 0, 0)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        #self.setWindowFlags(Qt.FramelessWindowHint)
+        # self.setWindowFlags(Qt.FramelessWindowHint)
 
         # Connect
         self.update_status()
@@ -114,7 +115,7 @@ class LoginWindow(QWidget):
             print(reply_json)
             if "success" in reply_json and reply_json["success"]:
                 self.logged_in = True
-                self.loginSuccess.emit()
+                self.loginSuccess.emit(reply_json["email"], reply_json["score"], None)
                 self.close()
             else:
                 self.error_dialog.showMessage('아이디나 비밀번호가 맞지 않습니다!')

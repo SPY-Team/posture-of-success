@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QWidget, QApplication
 from PyQt5.QtGui import QPolygonF, QPen, QBrush, QColor, QPainter, QFont, QTextDocument, QTextCharFormat, QTextCursor, \
     QCloseEvent
 from PyQt5.QtCore import Qt, QSize, QPointF
+from score import ScoreManager
 
 
 def make_text(text):
@@ -72,12 +73,14 @@ class GraphView(QGraphicsView):
 
 
 class PopupWindow(QWidget):
-    def __init__(self, score_manager):
+    def __init__(self, device):
         super().__init__()
 
         self.close_requested = False
-        self.score_manager = score_manager
-        self.device = score_manager.device
+        self.score_manager = None
+        self.device = device
+        self.user_email = None
+        self.normal_sensor_values = None
 
         # Setup UI
         self.setWindowFlags(
@@ -105,14 +108,19 @@ class PopupWindow(QWidget):
         main_layout.addWidget(self.label)
         main_layout.addWidget(self.graph_view)
         main_layout.setContentsMargins(0, 0, 0, 0)
-
         self.setLayout(main_layout)
 
-        # Connect
-        score_manager.device.updateNumber.connect(self.sensor_update)
-        score_manager.updateScore.connect(self.graph_view.update_score)
+        self.device.updateNumber.connect(self.sensor_update)
 
-    def start(self):
+    def start(self, email: str, score: float, sensor_data: tuple):
+        self.user_email = email
+        self.normal_sensor_values = sensor_data
+        self.score_manager = ScoreManager(score)
+
+        # Connect
+        self.device.updateNumber.connect(self.score_manager.score_update)
+        self.score_manager.updateScore.connect(self.graph_view.update_score)
+
         self.show()
 
     def sensor_update(self, score):
@@ -124,6 +132,7 @@ class PopupWindow(QWidget):
             event.ignore()
         self.close_requested = False
 
-    def real_close(self):
+    def logout(self):
+        self.user_email = None
         self.close_requested = True
         self.close()
