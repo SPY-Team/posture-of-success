@@ -4,21 +4,6 @@ import { LineChart, XAxis, Tooltip, CartesianGrid, Line, ResponsiveContainer } f
 export default class extends Component {
   constructor(props) {
     super(props);
-    const leaderboard = [
-      {
-        nickname: "성시철",
-        score: 3000,
-      },
-      {
-        nickname: "박건",
-        score: 2000,
-      },
-      {
-        nickname: "이희준",
-        score: 1000,
-      },
-    ]
-    const my_data = { score: 100, total_duration: 10, weekly_score: 10, ranking: 30 };
     this.state = { 
       email: this.props.email,
       username: "",
@@ -27,7 +12,8 @@ export default class extends Component {
       week_score: 0,
       week_duration: 0,
       score_rank: 0,
-      leaderboard
+      graph_data: 0,
+      leaderboard: [],
     };
   }
 
@@ -40,6 +26,26 @@ export default class extends Component {
     .then(res => res.json())
     .then(json => {
       this.setState(prevState => ({...prevState, ...json}));
+    });
+
+    fetch('/api/get_graph_data', {
+      method: 'post',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email: this.props.token })
+    })
+    .then(res => res.json())
+    .then(json => {
+      this.setState(json);
+    });
+
+    fetch('/api/get_leaderboard', {
+      method: 'post',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email: this.props.token })
+    })
+    .then(res => res.json())
+    .then(json => {
+      this.setState(json);
     });
   }
 
@@ -74,21 +80,15 @@ export default class extends Component {
           </div>
         </div>
 	<div className="card">
-	  <ResponsiveContainer width={700} height="80%">
+	  <ResponsiveContainer width="100%" height={300}>
 	    <LineChart width={500} height={500}
-              data={[
-	        { name: "what", uv: 300 },
-	        { name: "what", uv: 300 },
-	        { name: "what", uv: 300 },
-	        { name: "what", uv: 300 },
-	        { name: "what", uv: 300 },
-	      ]}
+              data={this.state.graph_data}
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
             >
-              <XAxis dataKey="name" />
+              <XAxis dataKey="receive_time" />
               <Tooltip />
-              <CartesianGrid stroke="#f5f5f5" />
-              <Line type="monotone" dataKey="uv" stroke="#ff7300" yAxisId={0} />
+              <CartesianGrid stroke="#bbb" />
+              <Line type="monotone" dataKey="score" stroke="#ff7300" yAxisId={0} />
             </LineChart>
 	  </ResponsiveContainer>
 	</div>
@@ -106,7 +106,7 @@ export default class extends Component {
               { this.state.leaderboard.map((e, i) => 
                 <tr key={i}>
                   <td id="ranking">{i+1}</td>
-                  <td id="nickname">{e.nickname}</td>
+                  <td id="nickname">{e.username}</td>
                   <td id="score">{e.score}</td>
                 </tr>
               ) }
