@@ -11,6 +11,9 @@ class ScoreManager(QObject):
         self.x = 0
         self.cooltime = 10
 
+    def get_score(self):
+        return self.score
+
     def score_update(self, values):
         lhip, lthigh, lback, rhip, rthigh, rback, dist = values
         thigh_imbalance = (lthigh - rthigh) / (lthigh + rthigh + 1)
@@ -27,7 +30,6 @@ class ScoreManager(QObject):
                 self.cooltime = 10
 
         if sum(values[:6]) == 0:
-            wrong_posture()
             msg = "일어섬"
         elif thigh_imbalance > 0.5:
             wrong_posture()

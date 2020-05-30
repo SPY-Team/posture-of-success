@@ -17,7 +17,7 @@ if __name__ == '__main__':
     app.setApplicationName("성공의 자세")
     app.setQuitOnLastWindowClosed(False)
     QFontDatabase.addApplicationFont("font.ttf")
-    app.setFont(QFont("GMarket Sans TTF", 12))
+    app.setFont(QFont("210 Namoogothic", 12))
     app.setWindowIcon(QIcon('icon.png'))
     app.setStyleSheet("""
     * {
@@ -34,6 +34,10 @@ if __name__ == '__main__':
     }
     .big {
         font-size: 20px;
+    }
+    .overlay {
+        background-color: white; 
+        border-radius: 30px;
     }
     QPushButton {
         height: 36px;
@@ -74,6 +78,10 @@ if __name__ == '__main__':
     QCheckBox::indicator {
         width: 20px;
         height: 20px;
+    }
+    QGraphicsView {
+        border: none;
+        background-color: transparent; 
     }
     """)
 

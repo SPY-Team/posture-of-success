@@ -7,6 +7,10 @@ import json
 from config import SERVER_BASE_ADDR
 
 
+def register(self):
+    QDesktopServices.openUrl(QUrl(SERVER_BASE_ADDR + "/signup"))
+
+
 class LoginWindow(QWidget):
     tryLogin = pyqtSignal(dict, name="tryLogin")
     loginSuccess = pyqtSignal(str, float, object, name="loginSuccess")
@@ -86,7 +90,7 @@ class LoginWindow(QWidget):
         self.update_status()
         self.device.connectedChanged.connect(self.update_status)
         self.login_button.clicked.connect(self.login_clicked)
-        register_button.clicked.connect(self.register)
+        register_button.clicked.connect(register)
 
         if self.settings.value("login/id", "") != "":
             self.save_login_checkbox.setChecked(True)
@@ -115,7 +119,9 @@ class LoginWindow(QWidget):
             print(reply_json)
             if "success" in reply_json and reply_json["success"]:
                 self.logged_in = True
-                self.loginSuccess.emit(reply_json["email"], reply_json["score"], None)
+                self.loginSuccess.emit(reply_json["email"],
+                                       reply_json["score"],
+                                       reply_json["sensor_data"])
                 self.close()
             else:
                 self.error_dialog.showMessage('아이디나 비밀번호가 맞지 않습니다!')
@@ -126,9 +132,6 @@ class LoginWindow(QWidget):
         self.settings.setValue("login/id", id)
         self.settings.setValue("login/pw", pw)
         self.settings.sync()
-
-    def register(self):
-        QDesktopServices.openUrl(QUrl(SERVER_BASE_ADDR + "/signup"))
 
     def update_status(self):
         if self.device.is_connected():
