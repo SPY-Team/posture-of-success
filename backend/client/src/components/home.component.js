@@ -60,7 +60,7 @@ export default class extends Component {
         <div className="score-container">
           <div className="card">
             <h2>나의 점수</h2>
-            <div className="score"> {this.state.score}점 </div>
+            <div className="score"> {Math.floor(this.state.score)}점 </div>
           </div>
           <div className="card">
             <table>
@@ -74,7 +74,7 @@ export default class extends Component {
               </tr>
               <tr>
                 <th>주간 점수</th>
-                <td>{this.state.week_score}점</td>
+                <td>{Math.floor(this.state.week_score)}점</td>
               </tr>
             </table>
           </div>
@@ -107,7 +107,7 @@ export default class extends Component {
                 <tr key={i}>
                   <td id="ranking">{i+1}</td>
                   <td id="nickname">{e.username}</td>
-                  <td id="score">{e.score}</td>
+                  <td id="score">{Math.floor(e.score)}</td>
                 </tr>
               ) }
             </tbody>
