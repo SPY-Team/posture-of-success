@@ -5,16 +5,14 @@ import math
 class ScoreManager(QObject):
     updateScore = pyqtSignal(float, str, name='updateScore')
 
-    def __init__(self, device):
+    def __init__(self, score):
         super().__init__()
-        self.device = device
-        self.score = 1000
+        self.score = score
         self.x = 0
         self.cooltime = 10
-        device.updateNumber.connect(self.score_update)
 
     def score_update(self, values):
-        lhip, lthigh, lback, rhip, rthigh, rback = values
+        lhip, lthigh, lback, rhip, rthigh, rback, dist = values
         thigh_imbalance = (lthigh - rthigh) / (lthigh + rthigh + 1)
         msg = ""
 
@@ -28,7 +26,7 @@ class ScoreManager(QObject):
                 self.score -= 1
                 self.cooltime = 10
 
-        if sum(values) == 0:
+        if sum(values[:6]) == 0:
             wrong_posture()
             msg = "일어섬"
         elif thigh_imbalance > 0.5:

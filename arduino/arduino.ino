@@ -13,13 +13,16 @@ const char* broadcastMsg = "Hello, world!";
 WiFiUDP udp;
 WiFiClient client;
 
-int left_back_pin = 26;
-int left_hip_pin = 25;
-int left_thigh_pin = 27;
+const int left_back_pin = 39;
+const int left_hip_pin = 36;
+const int left_thigh_pin = 34;
 
-int right_back_pin = 32;
-int right_hip_pin = 35;
-int right_thigh_pin = 33;
+const int right_back_pin = 32;
+const int right_hip_pin = 35;
+const int right_thigh_pin = 33;
+
+const int trigPin = 14;
+const int echoPin = 12;
 
 bool testWifi(void)
 {
@@ -39,9 +42,66 @@ bool testWifi(void)
   return false;
 }
 
+volatile unsigned long travelTime;  // Place to store traveltime of the pusle
+volatile unsigned long startTime;   // Place to store ping times (interrupt)
+
+/****************************************************************
+      Retrieve measurement and set next trigger
+****************************************************************/
+int doMeasurement()
+{
+  // First read will be 0 (no distance  calculated yet)
+  // Read the previous result (pause interrupts while doing so)
+  noInterrupts();   // cli()
+  unsigned long tt = travelTime;
+  interrupts();   // sei();
+
+  digitalWrite(trigPin, HIGH);    // HIGH pulse for at least 10µs
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);     // Set LOW again
+
+  float distance = tt / 2.0 * 343.0 / 10000.0;   // in cm
+  int mm = distance * 10; // in mm
+  if (mm > 10000) {
+    mm = -1;
+  }
+  
+  return mm;
+}
+/****************************************************************
+      INTERRUPT handling
+****************************************************************/
+// INTerrupt 0 (pin 2 on Uno)
+void call_INT0()
+{
+  byte pinRead = digitalRead(echoPin);
+  
+  unsigned long currentTime = micros();  // Get current time (in µs)
+  if (pinRead)
+  {
+    // If pin state has changed to HIGH -> remember start time (in µs)
+    startTime = currentTime;
+  }
+  else
+  {
+    // If pin state has changed to LOW -> calculate time passed (in µs)
+    travelTime = currentTime - startTime;
+  }
+}
+
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(115200);
+  while (!Serial) {
+    ; // Wait for Serial
+  }
+
+  // setup distance sensor
+  pinMode(trigPin, OUTPUT);   // Set common triggerpin as output
+  // Manage interrupt pins here
+  pinMode(echoPin, INPUT);    // Set interrupt pin as INPUT
+  attachInterrupt(digitalPinToInterrupt(echoPin), call_INT0, CHANGE); // ISR for INT0
+
+  // setup force sensor
   pinMode(left_back_pin, INPUT);
   pinMode(left_hip_pin, INPUT);
   pinMode(left_thigh_pin, INPUT);
@@ -143,9 +203,8 @@ void setup() {
 }
 
 int readForce(int pin) {
-  WRITE_PERI_REG(SENS_SAR_READ_CTRL2_REG, reg_b);
-  SET_PERI_REG_MASK(SENS_SAR_READ_CTRL2_REG, SENS_SAR2_DATA_INV);
-  return analogRead(pin);
+  int val = analogRead(pin);
+  return val;
 }
 
 void loop() {
@@ -173,6 +232,11 @@ void loop() {
     }
     Serial.printf("Connection to host succeed: %s:%d\n", (char*)buffer, 8081);
     while(true) {
+      int mm = doMeasurement();
+      
+      WRITE_PERI_REG(SENS_SAR_READ_CTRL2_REG, reg_b);
+      SET_PERI_REG_MASK(SENS_SAR_READ_CTRL2_REG, SENS_SAR2_DATA_INV);
+
       int left_back_val = readForce(left_back_pin);
       int left_hip_val = readForce(left_hip_pin);
       int left_thigh_val = readForce(left_thigh_pin);
@@ -181,10 +245,14 @@ void loop() {
       int right_hip_val = readForce(right_hip_pin);
       int right_thigh_val = readForce(right_thigh_pin);
       
-      int nBytes = client.printf("%d, %d, %d, %d, %d, %d\n", left_back_val, left_hip_val, left_thigh_val, right_back_val, right_hip_val, right_thigh_val);
+      int nBytes = client.printf("%d, %d, %d, %d, %d, %d, %d\n", 
+        left_back_val, left_hip_val, left_thigh_val, 
+        right_back_val, right_hip_val, right_thigh_val, 
+        mm);
       if (nBytes == 0) {
         return;
       }
+      
       delay(100);
     }
   }
