@@ -8,6 +8,7 @@ from tray_icon import SystemTrayIcon
 from login_window import LoginWindow
 from calibration_window import CalibrationWindow
 from popup_window import PopupWindow
+from state import State
 import connect
 import simul
 
@@ -85,8 +86,11 @@ if __name__ == '__main__':
     }
     """)
 
+    # Program state
+    state = State()
+
     # Tray Icon
-    tray_icon = SystemTrayIcon(QIcon('icon.png'))
+    tray_icon = SystemTrayIcon(state)
     tray_icon.show()
 
     # Start device thread
@@ -97,27 +101,32 @@ if __name__ == '__main__':
     device_thread.start()
 
     # Login Window
-    login = LoginWindow(device)
+    login = LoginWindow(state, device)
 
     # Calibration Window
-    calib_window = CalibrationWindow(device)
+    calib_window = CalibrationWindow(state, device)
 
     # Popup Window
-    popup = PopupWindow(device)
+    popup = PopupWindow(state, device)
 
-    def login_success(email, score, sensor_val):
-        if sensor_val is None:
-            calib_window.start(email, score)
+    def show_popup():
+        if state.sensor_values is None:
+            calib_window.start()
         else:
-            popup.start(email, score, sensor_val)
-    login.loginSuccess.connect(login_success)
-    calib_window.calibrated.connect(login_success)
+            popup.start()
+    login.loginSuccess.connect(show_popup)
+    calib_window.calibrated.connect(show_popup)
 
     def logout():
         popup.logout()
         calib_window.logout()
         login.logout()
     tray_icon.logout.connect(logout)
+
+    def calibrate():
+        popup.logout()
+        calib_window.start()
+    tray_icon.calibrate.connect(calibrate)
 
     login.show()
 

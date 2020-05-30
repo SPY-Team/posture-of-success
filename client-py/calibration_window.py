@@ -26,14 +26,15 @@ def detect(values):
 
 
 class CalibrationWindow(QWidget):
-    calibrated = pyqtSignal(str, float, tuple, name="calibrated")
+    calibrated = pyqtSignal(name="calibrated")
 
-    def __init__(self, device):
+    def __init__(self, state, device):
         super().__init__()
 
+        self.state = state
+        self.invalidated = False
+
         self.cnt = 0
-        self.user_email = None
-        self.score = None
         self.values = (0, 0, 0, 0, 0, 0, 0)
 
         self.network = QNetworkAccessManager()
@@ -85,9 +86,8 @@ class CalibrationWindow(QWidget):
         device.connectedChanged.connect(self.device_changed)
         device.updateNumber.connect(self.sensor_update)
 
-    def start(self, user_email, score):
-        self.user_email = user_email
-        self.score = score
+    def start(self):
+        self.invalidated = True
         self.cnt = 0
         self.values = (0, 0, 0, 0, 0, 0, 0)
         self.show()
@@ -99,20 +99,20 @@ class CalibrationWindow(QWidget):
             self.label.setText("최초 1회 센서 값을 조정합니다.\n장치를 연결해 주세요.")
 
     def finish(self, values):
-        data = {"email": self.user_email,
+        data = {"email": self.state.user_email,
                 "sensor_data": str(values)}
 
         req = QNetworkRequest(QUrl(SERVER_BASE_ADDR + "/api/device/update_sensor_data"))
         req.setRawHeader("Content-Type".encode('utf-8'), "application/json".encode('utf-8'))
         self.network.post(req, json.dumps(data).encode('utf-8'))
 
-        self.calibrated.emit(self.user_email, self.score, values)
-        self.user_email = None
-        self.score = None
+        self.state.sensor_values = values
+        self.invalidated = False
+        self.calibrated.emit()
         self.close()
 
     def sensor_update(self, values):
-        if self.user_email is None:
+        if not self.invalidated:
             return
         correct_posture, msg = detect(values)
         if correct_posture:
@@ -129,9 +129,9 @@ class CalibrationWindow(QWidget):
             self.finish(values)
 
     def logout(self):
-        self.user_email = None
+        self.invalidated = False
         self.close()
 
     def closeEvent(self, event):
-        if self.user_email is not None:
+        if self.invalidated:
             QCoreApplication.exit()

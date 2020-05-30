@@ -4,7 +4,7 @@ from PyQt5.QtGui import QPolygonF, QPen, QBrush, QColor, QPainter, QFont, QTextD
     QCloseEvent, QLinearGradient, QPainterPath
 from PyQt5.QtCore import Qt, QSize, QPointF, QUrl
 from score import ScoreManager
-from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager, QNetworkReply
+from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager
 from config import SERVER_BASE_ADDR
 import json
 
@@ -76,9 +76,9 @@ class GraphView(QGraphicsView):
             max_score = (int(max(scores) + 1) // 100 + 1) * 100
             max_score = max(100, max_score)
 
-            def get_y(s):
+            def get_y(sc):
                 h = height * 0.7
-                return height - ((s - min_score) / (max_score - min_score + 0.0001) * h)
+                return height - ((sc - min_score) / (max_score - min_score + 0.0001) * h)
 
             points = [QPointF(0, height)]
             path = None
@@ -99,14 +99,13 @@ class GraphView(QGraphicsView):
 
 
 class PopupWindow(QWidget):
-    def __init__(self, device):
+    def __init__(self, state, device):
         super().__init__()
 
+        self.state = state
         self.close_requested = False
         self.score_manager = None
         self.device = device
-        self.user_email = None
-        self.normal_sensor_values = None
         self.network = QNetworkAccessManager()
 
         self.last_score = None
@@ -152,14 +151,12 @@ class PopupWindow(QWidget):
 
         self.device.updateNumber.connect(self.sensor_update)
 
-    def start(self, email: str, score: float, sensor_data: tuple):
-        print(sensor_data)
-        self.user_email = email
-        self.normal_sensor_values = sensor_data
-        self.score_manager = ScoreManager(score)
-        self.graph_view.start(score)
+    def start(self):
+        print(self.state.sensor_values)
+        self.score_manager = ScoreManager(self.state.score)
+        self.graph_view.start(self.state.score)
 
-        self.last_score = score
+        self.last_score = self.state.score
         self.counter = 0
 
         # Connect
@@ -170,7 +167,7 @@ class PopupWindow(QWidget):
         self.show()
 
     def score_update(self, score):
-        if self.user_email is None:
+        if not self.state.is_logged_in():
             return
         self.counter += 1
         if self.counter == 50:
@@ -182,18 +179,17 @@ class PopupWindow(QWidget):
         self.label.setText(str(score))
 
     def send_data(self, duration, dscore):
-        data = {"email": self.user_email, "duration": duration, "dscore": dscore}
+        print("send data")
+        data = {"email": self.state.user_email, "duration": duration, "dscore": dscore}
         req = QNetworkRequest(QUrl(SERVER_BASE_ADDR + "/api/device/update_score"))
         req.setRawHeader("Content-Type".encode('utf-8'), "application/json".encode('utf-8'))
         self.network.post(req, json.dumps(data).encode('utf-8'))
 
     def closeEvent(self, event: QCloseEvent):
-        print("closeEvent")
         if not self.close_requested:
             event.ignore()
         self.close_requested = False
 
     def logout(self):
-        self.user_email = None
         self.close_requested = True
         self.close()
