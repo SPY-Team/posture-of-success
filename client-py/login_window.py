@@ -7,24 +7,24 @@ import json
 from config import SERVER_BASE_ADDR
 
 
-def register(self):
+def register():
     QDesktopServices.openUrl(QUrl(SERVER_BASE_ADDR + "/signup"))
 
 
 class LoginWindow(QWidget):
     tryLogin = pyqtSignal(dict, name="tryLogin")
-    loginSuccess = pyqtSignal(str, float, object, name="loginSuccess")
+    loginSuccess = pyqtSignal(name="loginSuccess")
 
-    def __init__(self, device):
+    def __init__(self, state, device):
         super().__init__()
 
         self.settings = QSettings("Capstone", "posture-of-success")
 
+        self.state = state
         self.device = device
         self.is_waiting = False
         self.login = QNetworkAccessManager()
         self.login.finished.connect(self.login_response)
-        self.logged_in = False
 
         self.error_dialog = QErrorMessage()
 
@@ -118,10 +118,9 @@ class LoginWindow(QWidget):
             reply_json = json.loads(reply)
             print(reply_json)
             if "success" in reply_json and reply_json["success"]:
-                self.logged_in = True
-                self.loginSuccess.emit(reply_json["email"],
-                                       reply_json["score"],
-                                       reply_json["sensor_data"])
+                self.state.login(reply_json["email"], reply_json["score"])
+                self.state.sensor_values = reply_json["sensor_data"]
+                self.loginSuccess.emit()
                 self.close()
             else:
                 self.error_dialog.showMessage('아이디나 비밀번호가 맞지 않습니다!')
@@ -140,7 +139,7 @@ class LoginWindow(QWidget):
             self.device_status.setText("장치 연결을 기다리는 중...")
 
     def logout(self):
-        self.logged_in = False
+        self.state.logout()
         self.show()
 
     def closeEvent(self, event: QCloseEvent):
@@ -150,5 +149,5 @@ class LoginWindow(QWidget):
         else:
             print("deleting login info")
             self.save_login("", "")
-        if not self.logged_in:
+        if not self.state.is_logged_in():
             QCoreApplication.exit()
