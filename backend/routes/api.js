@@ -79,7 +79,7 @@ router.post('/get_data', (req, res) => {
     if (err) { console.log(err); res.json({ success: false }); }
     else if (result.length == 0) res.json({ success: false });
     else {
-      result[0].duration = moment.duration(result[0].duration*5, "seconds").format("h시간 mm분");
+      result[0].duration = moment.duration(result[0].duration, "seconds").format("h시간 mm분");
       res.json({ ...result[0] });
     }
   });
