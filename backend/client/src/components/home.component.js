@@ -70,7 +70,7 @@ export default class extends Component {
               </tr>
               <tr>
                 <th>총 사용시간</th>
-                <td>{this.state.duration}시간</td>
+                <td>{this.state.duration}</td>
               </tr>
               <tr>
                 <th>주간 점수</th>
