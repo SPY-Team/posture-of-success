@@ -164,7 +164,19 @@ th:first-child, td:first-child {
 }
 
 tr:nth-child(even) {
-  background-color: #dadada;
+  background-color: #dfdfdf;
+}
+
+.leaderboard tr:nth-child(1) td:nth-child(2) {
+  color: #e58909
+}
+
+.leaderboard tr:nth-child(2) td:nth-child(2) {
+  color: #354c67
+}
+
+.leaderboard tr:nth-child(3) td:nth-child(2) {
+  color: #9c4302
 }
 
 .score-container {

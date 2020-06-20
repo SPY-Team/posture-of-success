@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import moment from "moment";
-import { ScatterChart, XAxis, YAxis, Scatter, ResponsiveContainer } from "recharts";
+import { ScatterChart, XAxis, YAxis, ZAxis, Tooltip, Legend, Scatter, ResponsiveContainer } from "recharts";
 
 export default class extends Component {
   constructor(props) {
@@ -122,10 +122,13 @@ export default class extends Component {
                 type = 'number'
               />
               <YAxis dataKey = 'score' name = 'Score' />
-
+              <ZAxis range={[5,5]} />
+              <Tooltip />
+              <Legend />
               <Scatter
                 data = {this.state.graph_data}
                 line = {{ stroke: '#353772' }}
+                fill = "#353772"
                 lineJointType = 'monotoneX'
                 name = 'Values'
               />
@@ -134,7 +137,7 @@ export default class extends Component {
         </div>
         <div className="card">
           <h2>리더보드</h2>
-          <table cellSpacing="0" cellPadding="0"> 
+          <table className="leaderboard" cellSpacing="0" cellPadding="0"> 
             <thead>
               <tr>
                 <th>순위</th>
