@@ -99,12 +99,12 @@ router.post('/get_graph_data', (req, res) => {
         e.receive_time = moment(e.receive_time).unix();
       })
       let formatted_result = [];
-      const N = 50;
+      const N = 100;
       if (result.length <= N)
 	    formatted_result = result;
       else {
         for (let i = 0; i<N-1; i++) {
-          formatted_result.push(result[Math.floor(i/50*result.length)]);
+          formatted_result.push(result[Math.floor(i/N*result.length)]);
         }
         formatted_result.push(result[result.length-1]);
       }
