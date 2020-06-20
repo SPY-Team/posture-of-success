@@ -118,7 +118,7 @@ export default class extends Component {
                 dataKey = 'receive_time'
                 domain = {['auto', 'auto']}
                 name = 'Time'
-                tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm Do')}
+                tickFormatter = {(unixTime) => { console.log(unixTime); return moment(unixTime).format('HH:mm Do'); }}
                 type = 'number'
               />
               <YAxis dataKey = 'score' name = 'Score' />
