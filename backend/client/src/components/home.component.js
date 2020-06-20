@@ -15,6 +15,7 @@ export default class extends Component {
       score_rank: 0,
       graph_data: 0,
       leaderboard: [],
+      isWeekly: false,
     };
   }
 
@@ -118,7 +119,7 @@ export default class extends Component {
                 domain = {['dataMin', 'dataMax']}
                 name = 'Time'
                 tickFormatter = {(unixTime) => {
-                  return moment.tz(unixTime, "Asia/Seoul").format('HH:mm MM/dd');
+                  return moment.tz(unixTime, "Asia/Seoul").format('HH:mm MM/DD');
                 }}
                 type = 'number'
               />
@@ -126,15 +127,6 @@ export default class extends Component {
               <Tooltip />
               <Legend />
               <CartesianGrid />
-              {this.state.rival?<Scatter
-                data = {this.state.rival_graph_data}
-                line = {{ stroke: '#723535', strokeWidth: 2}}
-                lineType = "joint"
-                lineJointType = 'monotoneX'
-                fill = "#723535"
-                shape = {() => null}
-                name = {this.state.rival}
-              />:null}
               <Scatter
                 data = {this.state.graph_data}
                 line = {{ stroke: '#353772', strokeWidth: 2}}
@@ -144,11 +136,44 @@ export default class extends Component {
                 shape = {() => null}
                 name = {this.state.username}
               />
+              {this.state.rival?<Scatter
+                data = {this.state.rival_graph_data}
+                line = {{ stroke: '#723535', strokeWidth: 2}}
+                lineType = "joint"
+                lineJointType = 'monotoneX'
+                fill = "#723535"
+                shape = {() => null}
+                name = {this.state.rival}
+              />:null}
             </ScatterChart>
           </ResponsiveContainer>
         </div>
         <div className="card">
           <h2>리더보드</h2>
+          <table className="leaderboard" cellSpacing="0" cellPadding="0"> 
+            <thead>
+              <tr>
+                <th>순위</th>
+                <th>이름</th>
+                <th>점수</th>
+              </tr>
+            </thead>
+            <tbody>
+              { this.state.leaderboard.map((e, i) => 
+                <tr key={i} onClick={() => { 
+                  this.setState({ rival:e.username === this.state.username?null:e.username });
+                  this.fetchRivalGraphData(e.email); 
+                }}>
+                  <td id="ranking">{i+1}</td>
+                  <td id="nickname">{e.username}</td>
+                  <td id="score">{Math.floor(e.score)}</td>
+                </tr>
+              ) }
+            </tbody>
+          </table>
+        </div>
+        <div className="card">
+          <h2>주간 리더 보드</h2>
           <table className="leaderboard" cellSpacing="0" cellPadding="0"> 
             <thead>
               <tr>

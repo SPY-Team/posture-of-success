@@ -98,6 +98,13 @@ router.post('/get_graph_data', (req, res) => {
         e.score = Math.floor(score);
         e.receive_time = moment(e.receive_time).unix()*1000;
       })
+      const N = 100;
+      let formatted_score = []
+      for (let i = 0; i < N-1; i++) {
+        formatted_score.push(e.score[Math.floor(i/N*e.score.length)]);
+      }
+      formatted_score.push(e.score[e.score.length-1]);
+      formatted_score[N-1].receive_time = moment().unix()*1000;
       res.json({ graph_data: result });
     }
   });
@@ -105,7 +112,7 @@ router.post('/get_graph_data', (req, res) => {
 
 router.post('/get_leaderboard', (req, res) => {
   var { email } = req.body;
-  var sql = "select score_rank, username, email, score from ranks";
+  var sql = "select score_rank, username, email, score, week_score, week_score_rank from ranks";
   var params = [email];
   con.query(sql, params, (err, result) => {
     if (err) { console.log(err); res.json({ success: false }); }
