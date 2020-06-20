@@ -168,15 +168,15 @@ tr:nth-child(even) {
 }
 
 tr:nth-child(1) td:nth-child(2) {
-  color: #C9B037
+  color: #e58909
 }
 
 tr:nth-child(2) td:nth-child(2) {
-  color: #D7D7D7
+  color: #354c67
 }
 
 tr:nth-child(3) td:nth-child(2) {
-  color: #6A3805
+  color: #9c4302
 }
 
 .score-container {
