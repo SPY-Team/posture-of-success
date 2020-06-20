@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import "moment";
 import { LineChart, XAxis, Tooltip, CartesianGrid, Line, ResponsiveContainer } from "recharts";
 
 export default class extends Component {
@@ -111,7 +112,7 @@ export default class extends Component {
               data={this.state.graph_data}
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
             >
-              <XAxis dataKey="receive_time" />
+              <XAxis dataKey="receive_time"/>
               <Tooltip />
               <CartesianGrid stroke="#bbb" />
               <Line type="monotone" dataKey="score" stroke="#ff7300" yAxisId={0} />
