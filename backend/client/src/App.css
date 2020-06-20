@@ -164,7 +164,7 @@ th:first-child, td:first-child {
 }
 
 tr:nth-child(even) {
-  background-color: #dadada;
+  background-color: #dfdfdf;
 }
 
 .leaderboard tr:nth-child(1) td:nth-child(2) {
