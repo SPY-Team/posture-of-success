@@ -134,7 +134,7 @@ export default class extends Component {
         </div>
         <div className="card">
           <h2>리더보드</h2>
-          <table cellSpacing="0" cellPadding="0"> 
+          <table className="leaderboard" cellSpacing="0" cellPadding="0"> 
             <thead>
               <tr>
                 <th>순위</th>

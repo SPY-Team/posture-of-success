@@ -167,15 +167,15 @@ tr:nth-child(even) {
   background-color: #dadada;
 }
 
-tr:nth-child(1) td:nth-child(2) {
+.leaderboard tr:nth-child(1) td:nth-child(2) {
   color: #e58909
 }
 
-tr:nth-child(2) td:nth-child(2) {
+.leaderboard tr:nth-child(2) td:nth-child(2) {
   color: #354c67
 }
 
-tr:nth-child(3) td:nth-child(2) {
+.leaderboard tr:nth-child(3) td:nth-child(2) {
   color: #9c4302
 }
 
