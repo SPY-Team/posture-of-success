@@ -127,7 +127,7 @@ export default class extends Component {
               <CartesianGrid />
               {this.state.rival?<Scatter
                 data = {this.state.rival_graph_data}
-                line = {{ stroke: '#723535', strokeWidth: 3}}
+                line = {{ stroke: '#723535', strokeWidth: 1}}
                 lineType = "joint"
                 lineJointType = 'monotoneX'
                 fill = "#723535"
@@ -136,7 +136,7 @@ export default class extends Component {
               />:null}
               <Scatter
                 data = {this.state.graph_data}
-                line = {{ stroke: '#353772', strokeWidth: 3}}
+                line = {{ stroke: '#353772', strokeWidth: 1}}
                 lineType = "joint"
                 lineJointType = 'monotoneX'
                 fill = "#353772"
@@ -159,7 +159,7 @@ export default class extends Component {
             <tbody>
               { this.state.leaderboard.map((e, i) => 
                 <tr key={i} onClick={() => { 
-                  this.state.rival = e.username === this.state.username?null:e.username; 
+                  this.setState({ rival:e.username === this.state.username?null:e.username });
                   this.fetchRivalGraphData(e.email); 
                 }}>
                   <td id="ranking">{i+1}</td>
