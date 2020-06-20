@@ -38,7 +38,7 @@ if __name__ == '__main__':
     }
     .overlay {
         background-color: white; 
-        border-radius: 30px;
+        border-radius: 10px;
     }
     QPushButton {
         height: 36px;
@@ -82,6 +82,7 @@ if __name__ == '__main__':
     }
     QGraphicsView {
         background-color: transparent; 
+        min-height: 0;
     }
     """)
 
