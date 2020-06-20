@@ -96,7 +96,6 @@ router.post('/get_graph_data', (req, res) => {
       result.forEach(e => {
         score += e.dscore;
         e.score = Math.floor(score);
-        e.receive_time = moment(e.receive_time).format('MM/DD HH:mm');
       })
       let formatted_result = [];
       const N = 50;
