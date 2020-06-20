@@ -113,9 +113,15 @@ export default class extends Component {
               height={500}
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
             >
-              <XAxis dataKey="receive_time"/>
-              <Tooltip />
-              <CartesianGrid stroke="#bbb" />
+              <XAxis
+                dataKey = 'receive_time'
+                domain = {['auto', 'auto']}
+                name = 'Time'
+                tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm Do')}
+                type = 'number'
+              />
+              <YAxis dataKey = 'score' name = 'Score' />
+
               <Scatter
                 data={this.state.graph_data}
                 line = {{ stroke: '#eee' }}
