@@ -51,6 +51,7 @@ export default class extends Component {
     .then(res => res.json())
     .then(json => {
       this.setState(prevState => ({ ...prevState, rival_graph_data: json.graph_data }));
+      console.log(this.state);
     });
   };
 
@@ -123,7 +124,7 @@ export default class extends Component {
               <YAxis dataKey = 'score' name = 'Score' />
 
               <Scatter
-                data={this.state.graph_data}
+                data = {this.state.graph_data}
                 line = {{ stroke: '#eee' }}
                 lineJointType = 'monotoneX'
                 lineType = 'joint'
