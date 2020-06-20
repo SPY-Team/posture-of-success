@@ -68,7 +68,7 @@ export default class extends Component {
     });
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.fetchData(this.props.token);
     this.fetchGraphData(this.props.token);
     this.fetchLeaderBoard(this.props.token);
@@ -94,7 +94,7 @@ export default class extends Component {
             <table>
               <tr>
                 <th>순위</th>
-                <td>{this.state.score_rank}위 (상위 {Math.floor(this.state.score_rank/this.state.leaderboard.length*10000)/100}%)</td>
+                <td>{this.state.score_rank}위 (상위 {Math.floor((this.state.score_rank-1)/(this.state.leaderboard.length-1)*10000)/100}%)</td>
               </tr>
               <tr>
                 <th>총 사용시간</th>
