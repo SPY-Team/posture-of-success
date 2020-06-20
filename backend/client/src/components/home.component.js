@@ -28,14 +28,16 @@ export default class extends Component {
       this.setState(prevState => ({...prevState, ...json}));
     });
 
-    fetch('/api/get_graph_data', {
-      method: 'post',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ email: this.props.token })
-    })
-    .then(res => res.json())
-    .then(json => {
-      this.setState(json);
+    setInterval(() => {
+      fetch('/api/get_graph_data', {
+        method: 'post',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ email: this.props.token })
+      })
+      .then(res => res.json())
+      .then(json => {
+        this.setState(json);
+      });
     });
 
     fetch('/api/get_leaderboard', {
@@ -45,6 +47,7 @@ export default class extends Component {
     })
     .then(res => res.json())
     .then(json => {
+      console.log(json);
       this.setState(json);
     });
   }
