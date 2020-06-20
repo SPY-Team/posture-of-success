@@ -183,14 +183,14 @@ export default class extends Component {
               </tr>
             </thead>
             <tbody>
-              { this.state.leaderboard.map((e, i) => 
+              { [...this.state.leaderboard].sort((a, b) => a.week_score - b.week_score).map((e, i) => 
                 <tr key={i} onClick={() => { 
                   this.setState({ rival:e.username === this.state.username?null:e.username });
                   this.fetchRivalGraphData(e.email); 
                 }}>
                   <td id="ranking">{i+1}</td>
                   <td id="nickname">{e.username}</td>
-                  <td id="score">{Math.floor(e.score)}</td>
+                  <td id="score">{Math.floor(e.week_score)}</td>
                 </tr>
               ) }
             </tbody>
