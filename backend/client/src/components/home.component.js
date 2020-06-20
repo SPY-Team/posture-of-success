@@ -18,35 +18,36 @@ export default class extends Component {
   }
 
   componentDidMount() {
-    fetch('/api/get_data', {
-      method: 'post',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ email: this.props.token })
-    })
-    .then(res => res.json())
-    .then(json => {
-      this.setState(prevState => ({...prevState, ...json}));
-    });
-
-    fetch('/api/get_graph_data', {
-      method: 'post',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ email: this.props.token })
-    })
-    .then(res => res.json())
-    .then(json => {
-      this.setState(json);
-    });
-
-    fetch('/api/get_leaderboard', {
-      method: 'post',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ email: this.props.token })
-    })
-    .then(res => res.json())
-    .then(json => {
-      this.setState(json);
-    });
+    setInterval(() => {
+      fetch('/api/get_data', {
+        method: 'post',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ email: this.props.token })
+      })
+      .then(res => res.json())
+      .then(json => {
+        this.setState(prevState => ({...prevState, ...json}));
+      });
+      fetch('/api/get_graph_data', {
+        method: 'post',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ email: this.props.token })
+      })
+      .then(res => res.json())
+      .then(json => {
+        this.setState(json);
+      });
+      fetch('/api/get_leaderboard', {
+        method: 'post',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ email: this.props.token })
+      })
+      .then(res => res.json())
+      .then(json => {
+        json.leaderboard.sort((a, b) => a.score_rank - b.score_rank);
+        this.setState(json);
+      });
+    }, 5000);
   }
 
   render() {
