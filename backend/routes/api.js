@@ -99,12 +99,12 @@ router.post('/get_graph_data', (req, res) => {
         e.receive_time = moment(e.receive_time).unix()*1000;
       })
       const N = 100;
-      let formatted_score = []
+      let formatted_result = []
       for (let i = 0; i < N-1; i++) {
-        formatted_score.push(e.score[Math.floor(i/N*e.score.length)]);
+        formatted_result.push(result[Math.floor(i/N*result.length)]);
       }
-      formatted_score.push(e.score[e.score.length-1]);
-      formatted_score[N-1].receive_time = moment().unix()*1000;
+      formatted_result.push(result[result.length-1]);
+      formatted_result[N-1].receive_time = moment().unix()*1000;
       res.json({ graph_data: result });
     }
   });
