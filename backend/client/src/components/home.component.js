@@ -118,8 +118,7 @@ export default class extends Component {
                 domain = {['dataMin', 'dataMax']}
                 name = 'Time'
                 tickFormatter = {(unixTime) => {
-                  console.log(unixTime);
-                  return moment.tz(unixTime, "Asia/Seoul").format('HH:mm Do');
+                  return moment.tz(unixTime, "Asia/Seoul").format('HH:mm MM/dd');
                 }}
                 type = 'number'
               />
