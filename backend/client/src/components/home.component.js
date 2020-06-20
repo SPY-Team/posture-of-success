@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import moment from "moment";
-import { ScatterChart, XAxis, YAxis, ZAxis, Tooltip, Legend, Scatter, ResponsiveContainer } from "recharts";
+import { ScatterChart, XAxis, YAxis, Tooltip, Legend, Scatter, ResponsiveContainer } from "recharts";
 
 export default class extends Component {
   constructor(props) {
@@ -118,16 +118,16 @@ export default class extends Component {
                 dataKey = 'receive_time'
                 domain = {['auto', 'auto']}
                 name = 'Time'
-                tickFormatter = {(unixTime) => { console.log(unixTime); return moment(unixTime).format('HH:mm Do'); }}
+                tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm Do')}
                 type = 'number'
               />
               <YAxis dataKey = 'score' name = 'Score' />
-              <ZAxis range={[5,5]} />
               <Tooltip />
               <Legend />
               <Scatter
                 data = {this.state.graph_data}
                 line = {{ stroke: '#353772' }}
+                shape = {() => null}
                 fill = "#353772"
                 lineJointType = 'monotoneX'
                 name = 'Values'
