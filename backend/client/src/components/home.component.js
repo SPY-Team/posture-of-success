@@ -68,13 +68,13 @@ export default class extends Component {
 
   componentDidMount() {
 
-    fetchData();
-    fetchGraphData();
-    fetchLeaderBoard();
+    this.fetchData();
+    this.fetchGraphData();
+    this.fetchLeaderBoard();
 
-    setInterval(fetchData, 1000);
-    setInterval(fetchGraphData, 5000);
-    setInterval(fetchLeaderBoard, 5000);
+    setInterval(this.fetchData, 1000);
+    setInterval(this.fetchGraphData, 5000);
+    setInterval(this.fetchLeaderBoard, 5000);
   }
 
   render() {
@@ -131,7 +131,7 @@ export default class extends Component {
             </thead>
             <tbody>
               { this.state.leaderboard.map((e, i) => 
-                <tr key={i} onClick={() => { fetchRivalGraphData(e.email); }}>
+                <tr key={i} onClick={() => { this.fetchRivalGraphData(e.email); }}>
                   <td id="ranking">{i+1}</td>
                   <td id="nickname">{e.username}</td>
                   <td id="score">{Math.floor(e.score)}</td>
