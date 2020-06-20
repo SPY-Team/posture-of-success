@@ -116,7 +116,7 @@ export default class extends Component {
             >
               <XAxis
                 dataKey = 'receive_time'
-                domain = {['auto', 'auto']}
+                domain = {['dataMin', 'dataMax']}
                 name = 'Time'
                 tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm Do')}
                 type = 'number'
