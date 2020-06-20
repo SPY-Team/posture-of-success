@@ -108,15 +108,22 @@ export default class extends Component {
         </div>
         <div className="card">
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart width={500} height={500}
-              data={this.state.graph_data}
+            <ScatterChart 
+              width={500} 
+              height={500}
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
             >
               <XAxis dataKey="receive_time"/>
               <Tooltip />
               <CartesianGrid stroke="#bbb" />
-              <Line type="monotone" dataKey="score" stroke="#ff7300" yAxisId={0} />
-            </LineChart>
+              <Scatter
+                data={this.state.graph_data}
+                line = {{ stroke: '#eee' }}
+                lineJointType = 'monotoneX'
+                lineType = 'joint'
+                name = 'Values'
+              />
+            </ScatterChart>
           </ResponsiveContainer>
         </div>
         <div className="card">
