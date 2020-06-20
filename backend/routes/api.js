@@ -96,19 +96,9 @@ router.post('/get_graph_data', (req, res) => {
       result.forEach(e => {
         score += e.dscore;
         e.score = Math.floor(score);
-        e.receive_time = moment(e.receive_time).unix();
+        e.receive_time = moment(e.receive_time).unix()*1000;
       })
-      let formatted_result = [];
-      const N = 100;
-      if (result.length <= N)
-	    formatted_result = result;
-      else {
-        for (let i = 0; i<N-1; i++) {
-          formatted_result.push(result[Math.floor(i/N*result.length)]);
-        }
-        formatted_result.push(result[result.length-1]);
-      }
-      res.json({ graph_data: formatted_result });
+      res.json({ graph_data: result });
     }
   });
 });
