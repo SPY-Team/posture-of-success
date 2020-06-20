@@ -1,12 +1,19 @@
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QWidget, QApplication, QStyle, QLabel, QVBoxLayout, \
     QDesktopWidget, QGraphicsOpacityEffect
 from PyQt5.QtGui import QPolygonF, QPen, QBrush, QColor, QPainter, QFont, QTextDocument, QTextCharFormat, QTextCursor, \
-    QCloseEvent, QLinearGradient, QPainterPath
-from PyQt5.QtCore import Qt, QSize, QPointF, QUrl, QTimer
+    QCloseEvent, QLinearGradient, QPainterPath, QMouseEvent
+from PyQt5.QtCore import Qt, QSize, QPointF, QUrl, QTimer, QEvent, QRect, pyqtSignal
 from score import ScoreManager
 from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager
 from config import SERVER_BASE_ADDR
 import json
+
+WINDOWFLAGS = Qt.CustomizeWindowHint | \
+              Qt.WindowStaysOnTopHint | \
+              Qt.Tool | \
+              Qt.FramelessWindowHint | \
+              Qt.WindowDoesNotAcceptFocus | \
+              Qt.X11BypassWindowManagerHint
 
 
 def make_text(text, size):
@@ -38,9 +45,11 @@ class GraphView(QGraphicsView):
         pen.setCapStyle(Qt.RoundCap)
         self.path = self.scene().addPath(QPainterPath(), pen)
         self.score_text = self.scene().addText("")
-        self.score_text.setDefaultTextColor(color)
         self.msg_text = self.scene().addText("")
+
+        self.score_text.setDefaultTextColor(color)
         self.msg_text.setDefaultTextColor(color)
+
         self.score_list = [0]
         self.minimize = False
 
@@ -119,6 +128,27 @@ class GraphView(QGraphicsView):
             self.update_screen()
 
 
+class Detector(QWidget):
+    enter = pyqtSignal(name="enter")
+
+    def __init__(self):
+        super().__init__()
+
+        flags = Qt.CustomizeWindowHint | \
+                Qt.WindowStaysOnTopHint | \
+                Qt.FramelessWindowHint | \
+                Qt.WindowDoesNotAcceptFocus | \
+                Qt.Tool | \
+                Qt.X11BypassWindowManagerHint
+
+        self.setWindowFlags(flags)
+        self.setProperty("class", "detector")
+        self.setAttribute(Qt.WA_TranslucentBackground)
+
+    def enterEvent(self, event: QEvent):
+        self.enter.emit()
+
+
 class PopupWindow(QWidget):
     def __init__(self, state, device):
         super().__init__()
@@ -128,21 +158,24 @@ class PopupWindow(QWidget):
         self.score_manager = None
         self.device = device
         self.network = QNetworkAccessManager()
+        self.minimize = False
+        self.alt_position = False
+
+        self.top = Detector()
+        self.mid = Detector()
+        self.bottom = Detector()
+        self.top.enter.connect(self.leave)
+        self.mid.enter.connect(self.leave)
+        self.bottom.enter.connect(self.leave)
 
         self.last_score = None
         self.counter = 0
 
         # Setup UI
-        self.setWindowFlags(
-            Qt.CustomizeWindowHint |
-            Qt.WindowStaysOnTopHint |
-            Qt.Dialog |
-            Qt.Tool |
-            Qt.FramelessWindowHint |
-            Qt.WindowTransparentForInput)
+        self.setWindowFlags(WINDOWFLAGS)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
-        self.set_size(5, 3)
+        self.update_size()
 
         self.label = QLabel("...")
 
@@ -165,9 +198,9 @@ class PopupWindow(QWidget):
         self.setProperty("class", "root")
         self.setContentsMargins(0, 0, 0, 0)
 
-        opacity = QGraphicsOpacityEffect()
-        opacity.setOpacity(0.8)
-        self.setGraphicsEffect(opacity)
+        self.opacity = QGraphicsOpacityEffect()
+        self.opacity.setOpacity(0.8)
+        self.setGraphicsEffect(self.opacity)
 
         self.device.connectedChanged.connect(self.graph_view.connected_changed)
         self.device.updateNumber.connect(self.sensor_update)
@@ -177,14 +210,24 @@ class PopupWindow(QWidget):
         self.timer.timeout.connect(self.graph_view.update_screen)
         self.timer.start()
 
-    def set_size(self, width, height):
+    def update_size(self):
+        if self.minimize:
+            width, height = 1.5, 0.9
+        else:
+            width, height = 5, 3
+        if self.alt_position:
+            align = Qt.LeftToRight
+        else:
+            align = Qt.RightToLeft
+
         desktop: QDesktopWidget = QApplication.instance().desktop()
         desktop_rect = desktop.availableGeometry()
         dpi_x = desktop.logicalDpiX()
         dpi_y = desktop.logicalDpiY()
         popup_size = QSize(dpi_x * width, dpi_y * height)
-        print(popup_size)
-        self.setGeometry(QStyle.alignedRect(Qt.RightToLeft, Qt.AlignVCenter, popup_size, desktop_rect))
+        rect = QStyle.alignedRect(align, Qt.AlignVCenter, popup_size, desktop_rect)
+        self.setGeometry(rect)
+        return desktop_rect, rect
 
     def start(self):
         print(self.state.sensor_values)
@@ -205,9 +248,9 @@ class PopupWindow(QWidget):
         if not self.state.is_logged_in():
             return
         if msg == "바른 자세":
-            self.set_size(1.5, 0.5)
+            self.minimize = True
         else:
-            self.set_size(5, 3)
+            self.minimize = False
 
         self.counter += 1
         if self.counter == 50:
@@ -229,6 +272,31 @@ class PopupWindow(QWidget):
         if not self.close_requested:
             event.ignore()
         self.close_requested = False
+
+    def enterEvent(self, event: QEvent):
+        self.opacity.setOpacity(0.1)
+        self.setWindowFlag(Qt.WindowTransparentForInput, True)
+        self.show()
+
+        desktop, rect = self.update_size()
+        self.top.setGeometry(QRect(0, 0, desktop.width(), rect.top()))
+        self.mid.setGeometry(QRect(0, rect.top(), rect.left(), rect.height()))
+        self.bottom.setGeometry(QRect(0, rect.bottom(), desktop.width(), desktop.height() - rect.bottom()))
+        self.top.show()
+        self.mid.show()
+        self.bottom.show()
+
+    def leave(self):
+        self.top.hide()
+        self.mid.hide()
+        self.bottom.hide()
+
+        self.opacity.setOpacity(0.8)
+        self.setWindowFlag(Qt.WindowTransparentForInput, False)
+        self.show()
+
+    def mousePressEvent(self, event: QMouseEvent):
+        event.setAccepted(False)
 
     def logout(self):
         self.close_requested = True
