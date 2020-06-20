@@ -167,6 +167,10 @@ tr:nth-child(even) {
   background-color: #dfdfdf;
 }
 
+.recharts-scatter-chart {
+  background-color: #dfdfdf;
+}
+
 .leaderboard tr:nth-child(1) td:nth-child(2) {
   color: #e58909
 }
