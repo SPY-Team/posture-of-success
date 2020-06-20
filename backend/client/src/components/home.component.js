@@ -112,7 +112,7 @@ export default class extends Component {
             <ScatterChart 
               width={500} 
               height={500}
-              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+              margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
             >
               <XAxis
                 dataKey = 'receive_time'
@@ -126,11 +126,10 @@ export default class extends Component {
               <Legend />
               <Scatter
                 data = {this.state.graph_data}
-                line = {{ stroke: '#353772' }}
-                shape = {() => null}
+                line = {{ stroke: '#353772', strokeWidth: 2}}
+                lineType = "joint"
                 fill = "#353772"
-                lineJointType = 'monotoneX'
-                name = 'Values'
+                name = {this.state.username}
               />
             </ScatterChart>
           </ResponsiveContainer>
