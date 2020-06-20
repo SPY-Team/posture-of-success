@@ -87,7 +87,7 @@ router.post('/get_data', (req, res) => {
 
 router.post('/get_graph_data', (req, res) => {
   var { email } = req.body;
-  var sql = "select receive_time, duration, dscore from scores where email=?";
+  var sql = "select receive_time, duration, dscore from scores where email=? order by recieve_time";
   var params = [email];
   con.query(sql, params, (err, result) => {
     if (err) { console.log(err); res.json({ success: false }); }
