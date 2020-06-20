@@ -112,7 +112,6 @@ export default class extends Component {
               width={500} 
               height={500}
               margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
-              backgroun
             >
               <XAxis
                 dataKey = 'receive_time'
@@ -127,7 +126,7 @@ export default class extends Component {
               <CartesianGrid />
               {this.state.rival?<Scatter
                 data = {this.state.rival_graph_data}
-                line = {{ stroke: '#723535', strokeWidth: 1}}
+                line = {{ stroke: '#723535', strokeWidth: 2}}
                 lineType = "joint"
                 lineJointType = 'monotoneX'
                 fill = "#723535"
@@ -136,7 +135,7 @@ export default class extends Component {
               />:null}
               <Scatter
                 data = {this.state.graph_data}
-                line = {{ stroke: '#353772', strokeWidth: 1}}
+                line = {{ stroke: '#353772', strokeWidth: 2}}
                 lineType = "joint"
                 lineJointType = 'monotoneX'
                 fill = "#353772"
