@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "moment";
-import { LineChart, XAxis, Tooltip, CartesianGrid, Line, ResponsiveContainer } from "recharts";
+import { ScatterChart, XAxis, Tooltip, CartesianGrid, Scatter, ResponsiveContainer } from "recharts";
 
 export default class extends Component {
   constructor(props) {
