@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import moment from "moment";
+import moment from "moment-timezone";
 import { ScatterChart, XAxis, YAxis, Tooltip, Legend, Scatter, ResponsiveContainer, CartesianGrid } from "recharts";
 
 export default class extends Component {
@@ -51,7 +51,6 @@ export default class extends Component {
     .then(res => res.json())
     .then(json => {
       this.setState(prevState => ({ ...prevState, rival_graph_data: json.graph_data }));
-      console.log(this.state);
     });
   };
 
@@ -113,36 +112,37 @@ export default class extends Component {
               width={500} 
               height={500}
               margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+              backgroun
             >
               <XAxis
                 dataKey = 'receive_time'
                 domain = {['dataMin', 'dataMax']}
                 name = 'Time'
-                tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm Do')}
+                tickFormatter = {(unixTime) => moment.tz(unixTime, "Asia/Seoul").format('HH:mm Do')}
                 type = 'number'
               />
               <YAxis dataKey = 'score' name = 'Score' />
               <Tooltip />
               <Legend />
               <CartesianGrid />
-              <Scatter
-                data = {this.state.graph_data}
-                line = {{ stroke: '#353772', strokeWidth: 4}}
-                lineType = "joint"
-                lineJointType = 'monotoneX'
-                fill = "#353772"
-                shape = {() => null}
-                name = {this.state.username}
-              />
               {this.state.rival?<Scatter
                 data = {this.state.rival_graph_data}
-                line = {{ stroke: '#723535', strokeWidth: 4}}
+                line = {{ stroke: '#723535', strokeWidth: 3}}
                 lineType = "joint"
                 lineJointType = 'monotoneX'
                 fill = "#723535"
                 shape = {() => null}
                 name = {this.state.rival}
               />:null}
+              <Scatter
+                data = {this.state.graph_data}
+                line = {{ stroke: '#353772', strokeWidth: 3}}
+                lineType = "joint"
+                lineJointType = 'monotoneX'
+                fill = "#353772"
+                shape = {() => null}
+                name = {this.state.username}
+              />
             </ScatterChart>
           </ResponsiveContainer>
         </div>
