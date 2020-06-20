@@ -167,6 +167,18 @@ tr:nth-child(even) {
   background-color: #dadada;
 }
 
+tr:nth-child(1) td:first-child{
+  background-color: #C9B037
+}
+
+tr:nth-child(2) td:first-child{
+  background-color: #D7D7D7
+}
+
+tr:nth-child(3) td:first-child{
+  background-color: #6A3805
+}
+
 .score-container {
   justify-content: space-between;
   width: 100%;
