@@ -17,66 +17,64 @@ export default class extends Component {
     };
   }
 
+  fetchData(token) {
+    fetch('/api/get_data', {
+      method: 'post',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email: token })
+    })
+    .then(res => res.json())
+    .then(json => {
+      this.setState(prevState => ({ ...prevState, ...json }));
+    });
+  }
+
+  fetchGraphData(token) {
+    fetch('/api/get_graph_data', {
+      method: 'post',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email: this.props.token })
+    })
+    .then(res => res.json())
+    .then(json => {
+      this.setState(json);
+    });
+  }
+
+  fetchRivalGraphData(email) {
+    fetch('/api/get_graph_data', {
+      method: 'post',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email })
+    })
+    .then(res => res.json())
+    .then(json => {
+      this.setState(prevState => ({ ...prevState, rival_graph_data: json.graph_data }));
+    });
+  };
+
+ fetchLeaderBoard(token) {
+    fetch('/api/get_leaderboard', {
+      method: 'post',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email: token })
+    })
+    .then(res => res.json())
+    .then(json => {
+      json.leaderboard.sort((a, b) => a.score_rank - b.score_rank);
+      this.setState(json);
+    });
+  }
   componentDidMount() {
 
-    const fetchData = () => {
-      fetch('/api/get_data', {
-        method: 'post',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ email: this.props.token })
-      })
-      .then(res => res.json())
-      .then(json => {
-        this.setState(prevState => ({ ...prevState, ...json }));
-      });
-    }
 
-    const fetchGraphData = () => {
-      fetch('/api/get_graph_data', {
-        method: 'post',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ email: this.props.token })
-      })
-      .then(res => res.json())
-      .then(json => {
-        this.setState(json);
-      });
-    }
+    fetchData(this.props.token);
+    fetchGraphData(this.props.token);
+    fetchLeaderBoard(this.props.token);
 
-    const fetchRivalGraphData = (email) => {
-      fetch('/api/get_graph_data', {
-        method: 'post',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ email })
-      })
-      .then(res => res.json())
-      .then(json => {
-        this.setState(prevState => ({ ...prevState, rival_graph_data: json.graph_data }));
-      });
-    };
-
-    this.props.fetchRivalGraphData = fetchRivalGraphData;
-
-    const fetchLeaderBoard = () => {
-      fetch('/api/get_leaderboard', {
-        method: 'post',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ email: this.props.token })
-      })
-      .then(res => res.json())
-      .then(json => {
-        json.leaderboard.sort((a, b) => a.score_rank - b.score_rank);
-        this.setState(json);
-      });
-    }
-
-    fetchData();
-    fetchGraphData();
-    fetchLeaderBoard();
-
-    setInterval(fetchData, 1000);
-    setInterval(fetchGraphData, 5000);
-    setInterval(fetchLeaderBoard, 5000);
+    setInterval(() => { fetchData(this.props.token); }, 1000);
+    setInterval(() => { fetchGraphData(this.props.token); }, 5000);
+    setInterval(() => { fetchLeaderBoard(this.props.token); }, 5000);
   }
 
   render() {
@@ -133,7 +131,7 @@ export default class extends Component {
             </thead>
             <tbody>
               { this.state.leaderboard.map((e, i) => 
-                <tr key={i} onClick={() => { this.props.fetchRivalGraphData(e.email); }}>
+                <tr key={i} onClick={() => { fetchRivalGraphData(e.email); }}>
                   <td id="ranking">{i+1}</td>
                   <td id="nickname">{e.username}</td>
                   <td id="score">{Math.floor(e.score)}</td>
