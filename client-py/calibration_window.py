@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QGraphicsView, QGraphicsScene
-from PyQt5.QtGui import QIcon, QMovie, QPixmap, QPen, QBrush, QPainter, QPolygonF
+from PyQt5.QtGui import QIcon, QMovie, QPixmap, QPen, QBrush, QPainter, QPolygonF, QColor
 from PyQt5.QtCore import pyqtSignal, QCoreApplication, Qt, QUrl, QRectF, QPointF
 from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager
 from config import SERVER_BASE_ADDR
@@ -38,22 +38,25 @@ class CalibrationWindow(QWidget):
         self.acc_values = (0, 0, 0, 0, 0, 0, 0)
 
         self.network = QNetworkAccessManager()
+
         view = QGraphicsView()
         view.setRenderHint(QPainter.Antialiasing)
         scene = QGraphicsScene()
-        chair = scene.addPixmap(QPixmap("chair.png").scaledToWidth(150))
-        pen = QPen(Qt.NoPen)
+        scene.addPixmap(QPixmap("chair.png").scaledToWidth(150))
+        pen = QPen(QColor.fromRgb(0x28, 0x30, 0x39), 3)
         self.sonic = scene.addRect(QRectF(65, 20, 20, 10), pen, QBrush(Qt.white))
         self.lback = scene.addEllipse(QRectF(30, 50, 20, 20), pen, QBrush(Qt.white))
         self.rback = scene.addEllipse(QRectF(100, 50, 20, 20), pen, QBrush(Qt.white))
         self.lhip = scene.addPolygon(
-            QPolygonF([QPointF(30, 180), QPointF(50, 180), QPointF(50, 170), QPointF(30, 170)]),
+            QPolygonF([QPointF(30, 170), QPointF(50, 170), QPointF(50, 160), QPointF(30, 160)]),
             pen, QBrush(Qt.white))
         self.rhip = scene.addPolygon(
-            QPolygonF([QPointF(100, 180), QPointF(120, 180), QPointF(120, 170), QPointF(100, 170)]),
+            QPolygonF([QPointF(100, 170), QPointF(120, 170), QPointF(120, 160), QPointF(100, 160)]),
             pen, QBrush(Qt.white))
         self.lthigh = scene.addEllipse(QRectF(30, 200, 20, 10), pen, QBrush(Qt.white))
         self.rthigh = scene.addEllipse(QRectF(100, 200, 20, 10), pen, QBrush(Qt.white))
+        self.displays = [self.lhip, self.lthigh, self.lback, self.rhip, self.rthigh, self.rback, self.sonic]
+
         view.setScene(scene)
         view.setFixedWidth(150)
         view.setMinimumHeight(400)
@@ -129,6 +132,11 @@ class CalibrationWindow(QWidget):
     def sensor_update(self, values):
         if not self.invalidated:
             return
+
+        for val, disp in zip(values, self.displays):
+            v = int(max(min(val / 4096 * 255, 255), 0))
+            disp.setBrush(QColor.fromRgb(v, v, v))
+
         correct_posture, msg = detect(values)
         if correct_posture:
             self.cnt += 1

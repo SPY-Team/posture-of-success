@@ -25,6 +25,7 @@ if __name__ == '__main__':
         color: #353772;
         margin: 0;
         padding: 0;
+        border: 1px solid transparent;
     }
     .frame {
         background-color: white; 
@@ -39,6 +40,7 @@ if __name__ == '__main__':
     .overlay {
         background-color: white; 
         border-radius: 30px;
+        border: 1px solid #353772;
     }
     QPushButton {
         height: 36px;
