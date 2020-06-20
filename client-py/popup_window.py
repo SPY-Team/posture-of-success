@@ -1,12 +1,14 @@
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QWidget, QApplication, QStyle, QLabel, QVBoxLayout, \
-    QDesktopWidget, QGraphicsOpacityEffect
-from PyQt5.QtGui import QPolygonF, QPen, QBrush, QColor, QPainter, QFont, QTextDocument, QTextCharFormat, QTextCursor, \
-    QCloseEvent, QLinearGradient, QPainterPath, QMouseEvent
-from PyQt5.QtCore import Qt, QSize, QPointF, QUrl, QTimer, QEvent, QRect, pyqtSignal
-from score import ScoreManager
-from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager
-from config import SERVER_BASE_ADDR
 import json
+
+from PyQt5.QtCore import Qt, QSize, QUrl, QTimer, QEvent, QRect, pyqtSignal
+from PyQt5.QtGui import QCloseEvent, QMouseEvent
+from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager
+from PyQt5.QtWidgets import QWidget, QApplication, QStyle, QLabel, QVBoxLayout, \
+    QDesktopWidget, QGraphicsOpacityEffect
+
+from config import SERVER_BASE_ADDR
+from graph_view import GraphView
+from score import ScoreManager
 
 WINDOWFLAGS = Qt.CustomizeWindowHint | \
               Qt.WindowStaysOnTopHint | \
@@ -14,128 +16,6 @@ WINDOWFLAGS = Qt.CustomizeWindowHint | \
               Qt.FramelessWindowHint | \
               Qt.WindowDoesNotAcceptFocus | \
               Qt.X11BypassWindowManagerHint
-
-
-def make_text(text, size):
-    document = QTextDocument()
-    fmt = QTextCharFormat()
-    font: QFont = QApplication.instance().font()
-    font.setPixelSize(size)
-    fmt.setFont(font)
-    cursor = QTextCursor(document)
-    cursor.insertText(text, fmt)
-    return document
-
-
-class GraphView(QGraphicsView):
-    def __init__(self):
-        super().__init__()
-
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-        self.setScene(QGraphicsScene())
-        self.setBackgroundBrush(Qt.transparent)
-        self.setRenderHint(QPainter.Antialiasing)
-
-        self.graph = self.scene().addPolygon(QPolygonF(), QPen(Qt.transparent), QBrush())
-
-        color = QColor.fromRgb(0x35, 0x37, 0x72)
-        pen = QPen(color, 3)
-        pen.setCapStyle(Qt.RoundCap)
-        self.path = self.scene().addPath(QPainterPath(), pen)
-
-        self.score_text = self.scene().addText("")
-        self.score_text.setDefaultTextColor(color)
-
-        self.msg_text = self.scene().addText("")
-        self.msg_text.setDefaultTextColor(color)
-        self.msg_text.setX(0)
-        self.msg_text.setY(0)
-
-        self.sitting_time_text = self.scene().addText("")
-        self.sitting_time_text.setDefaultTextColor(color)
-        self.sitting_time_text.setX(0)
-        self.sitting_time_text.setY(26)
-
-        self.score_list = [0]
-        self.minimize = False
-
-        self.connected_changed(False)
-
-    def start(self, score):
-        self.score_list = [score]
-
-    def showEvent(self, event):
-        size = self.viewport().size()
-        self.scene().setSceneRect(0, 0, size.width(), size.height())
-        self.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-
-    def update_score(self, score, msg, sitting_time):
-        if msg == "바른 자세":
-            self.minimize = True
-            self.msg_text.setDocument(make_text("", 24))
-        else:
-            self.minimize = False
-            self.msg_text.setDocument(make_text(msg, 24))
-        self.sitting_time_text.setDocument(make_text("{:.0f}초".format(sitting_time), 16))
-        if msg != "일어섬":
-            self.score_list.append(score)
-
-    def update_screen(self):
-        score = self.score_list[-1]
-        size = self.viewport().size()
-        width = size.width()
-        height = size.height()
-
-        gradient = QLinearGradient(QPointF(0, 0), QPointF(0, height))
-        gradient.setColorAt(0.0, QColor.fromRgb(0x35, 0x37, 0x72))
-        gradient.setColorAt(1.0, Qt.white)
-        self.graph.setBrush(QBrush(gradient))
-
-        self.score_text.setDocument(make_text("{:.0f}".format(score), 36))
-        self.score_text.setX((width - self.score_text.boundingRect().width()))
-        self.score_text.setY(0)
-
-        window_size = 1000
-        scores = self.score_list[-window_size:]
-        self.update_graph(scores, width, height)
-
-        self.scene().update()
-
-    def update_graph(self, scores, width, height):
-        if len(scores) > 1 and not self.minimize:
-            min_score = (int(min(scores) + 1) // 100) * 100
-            max_score = (int(max(scores) + 1) // 100 + 1) * 100
-
-            def get_y(sc):
-                h = height * 0.7
-                return height - ((sc - min_score) / (max_score - min_score + 0.0001) * h)
-
-            points = [QPointF(0, height)]
-            path = None
-            for i, s in enumerate(scores):
-                x = i / (len(scores) - 1) * (width - 6) + 3
-                y = get_y(s)
-                point = QPointF(x, min(y, height - 5))
-                points.append(point)
-                if path is None:
-                    path = QPainterPath(point)
-                else:
-                    path.lineTo(point)
-            points.append(QPointF(width, height))
-            polygon = QPolygonF(points)
-            self.graph.setPolygon(polygon)
-            self.path.setPath(path)
-        else:
-            self.graph.setPolygon(QPolygonF())
-            self.path.setPath(QPainterPath())
-
-    def connected_changed(self, connected):
-        if not connected:
-            self.msg_text.setDocument(make_text("장치를 연결해 주세요.", 24))
-            self.minimize = False
-            self.update_screen()
 
 
 class Detector(QWidget):
@@ -167,7 +47,7 @@ class PopupWindow(QWidget):
         self.device = device
         self.network = QNetworkAccessManager()
         self.minimize = False
-        self.alt_position = False
+        self.mouse_hover = False
 
         self.top = Detector()
         self.mid = Detector()
@@ -183,23 +63,22 @@ class PopupWindow(QWidget):
         self.setWindowFlags(WINDOWFLAGS)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
-        self.update_size()
-
         self.label = QLabel("...")
 
         self.graph_view = GraphView()
 
-        layout = QVBoxLayout()
+        self.layout = QVBoxLayout()
         # layout.addWidget(self.label)
-        layout.addWidget(self.graph_view)
-        layout.setContentsMargins(20, 20, 20, 20)
+        self.layout.addWidget(self.graph_view)
 
-        frame = QWidget()
-        frame.setLayout(layout)
-        frame.setProperty("class", "overlay")
+        self.update_size()
+
+        self.frame = QWidget()
+        self.frame.setLayout(self.layout)
+        self.frame.setProperty("class", "overlay")
 
         main_layout = QVBoxLayout()
-        main_layout.addWidget(frame)
+        main_layout.addWidget(self.frame)
         main_layout.setContentsMargins(0, 0, 0, 0)
 
         self.setLayout(main_layout)
@@ -220,20 +99,16 @@ class PopupWindow(QWidget):
 
     def update_size(self):
         if self.minimize:
-            width, height = 1.5, 0.9
+            width, height = 120, 80
+            self.layout.setContentsMargins(10, 10, 10, 10)
         else:
-            width, height = 5, 3
-        if self.alt_position:
-            align = Qt.LeftToRight
-        else:
-            align = Qt.RightToLeft
+            width, height = 450, 300
+            self.layout.setContentsMargins(20, 20, 20, 20)
 
         desktop: QDesktopWidget = QApplication.instance().desktop()
         desktop_rect = desktop.availableGeometry()
-        dpi_x = desktop.logicalDpiX()
-        dpi_y = desktop.logicalDpiY()
-        popup_size = QSize(dpi_x * width, dpi_y * height)
-        rect = QStyle.alignedRect(align, Qt.AlignVCenter, popup_size, desktop_rect)
+        popup_size = QSize(width, height)
+        rect = QStyle.alignedRect(Qt.RightToLeft, Qt.AlignVCenter, popup_size, desktop_rect)
         self.setGeometry(rect)
         return desktop_rect, rect
 
@@ -248,17 +123,27 @@ class PopupWindow(QWidget):
         # Connect
         self.device.updateNumber.connect(self.score_manager.score_update)
         self.score_manager.updateScore.connect(self.score_update)
-        self.score_manager.updateScore.connect(self.graph_view.update_score)
 
         self.show()
 
-    def score_update(self, score, msg):
+    def set_minimized(self, minimize):
+        self.minimize = minimize
+        self.update_size()
+        self.graph_view.size_changed(minimize)
+        if minimize:
+            self.frame.setStyleSheet("border-radius: 10px;")
+        else:
+            self.frame.setStyleSheet("border-radius: 30px;")
+
+    def score_update(self, score, msg, sitting_time):
         if not self.state.is_logged_in():
             return
-        if msg == "바른 자세":
-            self.minimize = True
+        if msg == "바른 자세" and not self.mouse_hover:
+            self.set_minimized(True)
         else:
-            self.minimize = False
+            self.set_minimized(False)
+
+        self.graph_view.update_score(score, msg, sitting_time, self.minimize)
 
         self.counter += 1
         if self.counter == 50:
@@ -282,7 +167,12 @@ class PopupWindow(QWidget):
         self.close_requested = False
 
     def enterEvent(self, event: QEvent):
-        self.opacity.setOpacity(0.1)
+        if self.minimize:
+            self.set_minimized(False)
+        else:
+            self.opacity.setOpacity(0.1)
+
+        self.mouse_hover = True
         self.setWindowFlag(Qt.WindowTransparentForInput, True)
         self.show()
 
@@ -295,6 +185,8 @@ class PopupWindow(QWidget):
         self.bottom.show()
 
     def leave(self):
+        self.mouse_hover = False
+
         self.top.hide()
         self.mid.hide()
         self.bottom.hide()
