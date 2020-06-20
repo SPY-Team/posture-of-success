@@ -127,15 +127,17 @@ export default class extends Component {
               <CartesianGrid />
               <Scatter
                 data = {this.state.graph_data}
-                line = {{ stroke: '#353772', strokeWidth: 2}}
+                line = {{ stroke: '#353772', strokeWidth: 4}}
                 lineType = "joint"
+                fill = "#353772"
                 shape = {() => null}
                 name = {this.state.username}
               />
               {this.state.rival?<Scatter
                 data = {this.state.rival_graph_data}
-                line = {{ stroke: '#723535', strokeWidth: 2}}
+                line = {{ stroke: '#723535', strokeWidth: 4}}
                 lineType = "joint"
+                fill = "#723535"
                 shape = {() => null}
                 name = {this.state.rival}
               />:null}
