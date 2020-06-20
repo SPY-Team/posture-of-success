@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QWidget, QApplication, QStyle, QLabel, QVBoxLayout, \
-    QDesktopWidget
+    QDesktopWidget, QGraphicsOpacityEffect
 from PyQt5.QtGui import QPolygonF, QPen, QBrush, QColor, QPainter, QFont, QTextDocument, QTextCharFormat, QTextCursor, \
     QCloseEvent, QLinearGradient, QPainterPath
 from PyQt5.QtCore import Qt, QSize, QPointF, QUrl, QTimer
@@ -24,6 +24,9 @@ class GraphView(QGraphicsView):
     def __init__(self):
         super().__init__()
 
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
         self.setScene(QGraphicsScene())
         self.setBackgroundBrush(Qt.transparent)
         self.setRenderHint(QPainter.Antialiasing)
@@ -39,6 +42,7 @@ class GraphView(QGraphicsView):
         self.msg_text = self.scene().addText("")
         self.msg_text.setDefaultTextColor(color)
         self.score_list = [0]
+        self.minimize = False
 
         self.connected_changed(False)
 
@@ -51,8 +55,13 @@ class GraphView(QGraphicsView):
         self.setAlignment(Qt.AlignTop | Qt.AlignLeft)
 
     def update_score(self, score, msg):
+        if msg == "바른 자세":
+            self.minimize = True
+            self.msg_text.setDocument(make_text("", 24))
+        else:
+            self.minimize = False
+            self.msg_text.setDocument(make_text(msg, 24))
         self.score_list.append(score)
-        self.msg_text.setDocument(make_text(msg, 24))
 
     def update_screen(self):
         score = self.score_list[-1]
@@ -76,7 +85,7 @@ class GraphView(QGraphicsView):
         self.scene().update()
 
     def update_graph(self, scores, width, height):
-        if len(scores) > 1:
+        if len(scores) > 1 and not self.minimize:
             min_score = (int(min(scores) + 1) // 100) * 100
             max_score = (int(max(scores) + 1) // 100 + 1) * 100
 
@@ -106,6 +115,8 @@ class GraphView(QGraphicsView):
     def connected_changed(self, connected):
         if not connected:
             self.msg_text.setDocument(make_text("장치를 연결해 주세요.", 24))
+            self.minimize = False
+            self.update_screen()
 
 
 class PopupWindow(QWidget):
@@ -154,6 +165,10 @@ class PopupWindow(QWidget):
         self.setProperty("class", "root")
         self.setContentsMargins(0, 0, 0, 0)
 
+        opacity = QGraphicsOpacityEffect()
+        opacity.setOpacity(0.8)
+        self.setGraphicsEffect(opacity)
+
         self.device.connectedChanged.connect(self.graph_view.connected_changed)
         self.device.updateNumber.connect(self.sensor_update)
 
@@ -168,6 +183,7 @@ class PopupWindow(QWidget):
         dpi_x = desktop.logicalDpiX()
         dpi_y = desktop.logicalDpiY()
         popup_size = QSize(dpi_x * width, dpi_y * height)
+        print(popup_size)
         self.setGeometry(QStyle.alignedRect(Qt.RightToLeft, Qt.AlignVCenter, popup_size, desktop_rect))
 
     def start(self):
@@ -188,6 +204,11 @@ class PopupWindow(QWidget):
     def score_update(self, score, msg):
         if not self.state.is_logged_in():
             return
+        if msg == "바른 자세":
+            self.set_size(1.5, 0.5)
+        else:
+            self.set_size(5, 3)
+
         self.counter += 1
         if self.counter == 50:
             self.send_data(self.counter / 10, score - self.last_score)

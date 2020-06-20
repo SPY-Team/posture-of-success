@@ -54,13 +54,13 @@ class CalibrationWindow(QWidget):
         self.rthigh = scene.addEllipse(QRectF(100, 200, 20, 10), QPen(Qt.NoPen), QBrush(Qt.white))
         view.setScene(scene)
         view.setFixedWidth(150)
-        view.setFixedHeight(300)
+        view.setMinimumHeight(400)
         view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.setWindowTitle("센서 조정")
         self.setWindowIcon(QIcon('icon.png'))
-        self.setGeometry(300, 300, 560, 460)
+        self.setGeometry(300, 300, 560, 500)
 
         self.label = QLabel()
         self.label.setProperty("class", "big")
