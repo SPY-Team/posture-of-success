@@ -125,9 +125,8 @@ export default class extends Component {
 
               <Scatter
                 data = {this.state.graph_data}
-                line = {{ stroke: '#eee' }}
+                line = {{ stroke: '#353772' }}
                 lineJointType = 'monotoneX'
-                lineType = 'joint'
                 name = 'Values'
               />
             </ScatterChart>
