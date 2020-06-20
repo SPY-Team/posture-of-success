@@ -132,13 +132,14 @@ export default class extends Component {
                 fill = "#353772"
                 name = {this.state.username}
               />
-              <Scatter
+              {this.state.rival?<Scatter
                 data = {this.state.rival_graph_data}
                 line = {{ stroke: '#353772', strokeWidth: 2}}
                 lineType = "joint"
+                shape = {() => null}
                 fill = "#353772"
                 name = {this.state.rival}
-              />
+              />:null}
             </ScatterChart>
           </ResponsiveContainer>
         </div>
@@ -154,7 +155,10 @@ export default class extends Component {
             </thead>
             <tbody>
               { this.state.leaderboard.map((e, i) => 
-                <tr key={i} onClick={() => { this.state.rival=e.username; this.fetchRivalGraphData(e.email); }}>
+                <tr key={i} onClick={() => { 
+                  this.state.rival = e.username == this.state.username?null:e.username; 
+                  this.fetchRivalGraphData(e.email); 
+                }}>
                   <td id="ranking">{i+1}</td>
                   <td id="nickname">{e.username}</td>
                   <td id="score">{Math.floor(e.score)}</td>
