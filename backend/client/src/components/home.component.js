@@ -129,6 +129,7 @@ export default class extends Component {
                 data = {this.state.graph_data}
                 line = {{ stroke: '#353772', strokeWidth: 4}}
                 lineType = "joint"
+                lineJointType = 'monotoneX'
                 fill = "#353772"
                 shape = {() => null}
                 name = {this.state.username}
@@ -137,6 +138,7 @@ export default class extends Component {
                 data = {this.state.rival_graph_data}
                 line = {{ stroke: '#723535', strokeWidth: 4}}
                 lineType = "joint"
+                lineJointType = 'monotoneX'
                 fill = "#723535"
                 shape = {() => null}
                 name = {this.state.rival}
