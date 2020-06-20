@@ -42,16 +42,18 @@ class CalibrationWindow(QWidget):
         view.setRenderHint(QPainter.Antialiasing)
         scene = QGraphicsScene()
         chair = scene.addPixmap(QPixmap("chair.png").scaledToWidth(150))
-        self.lback = scene.addEllipse(QRectF(30, 50, 20, 20), QPen(Qt.NoPen), QBrush(Qt.white))
-        self.rback = scene.addEllipse(QRectF(100, 50, 20, 20), QPen(Qt.NoPen), QBrush(Qt.white))
+        pen = QPen(Qt.NoPen)
+        self.sonic = scene.addRect(QRectF(65, 20, 20, 10), pen, QBrush(Qt.white))
+        self.lback = scene.addEllipse(QRectF(30, 50, 20, 20), pen, QBrush(Qt.white))
+        self.rback = scene.addEllipse(QRectF(100, 50, 20, 20), pen, QBrush(Qt.white))
         self.lhip = scene.addPolygon(
             QPolygonF([QPointF(30, 180), QPointF(50, 180), QPointF(50, 170), QPointF(30, 170)]),
-            QPen(Qt.NoPen), QBrush(Qt.white))
+            pen, QBrush(Qt.white))
         self.rhip = scene.addPolygon(
             QPolygonF([QPointF(100, 180), QPointF(120, 180), QPointF(120, 170), QPointF(100, 170)]),
-            QPen(Qt.NoPen), QBrush(Qt.white))
-        self.lthigh = scene.addEllipse(QRectF(30, 200, 20, 10), QPen(Qt.NoPen), QBrush(Qt.white))
-        self.rthigh = scene.addEllipse(QRectF(100, 200, 20, 10), QPen(Qt.NoPen), QBrush(Qt.white))
+            pen, QBrush(Qt.white))
+        self.lthigh = scene.addEllipse(QRectF(30, 200, 20, 10), pen, QBrush(Qt.white))
+        self.rthigh = scene.addEllipse(QRectF(100, 200, 20, 10), pen, QBrush(Qt.white))
         view.setScene(scene)
         view.setFixedWidth(150)
         view.setMinimumHeight(400)
@@ -60,7 +62,7 @@ class CalibrationWindow(QWidget):
 
         self.setWindowTitle("센서 조정")
         self.setWindowIcon(QIcon('icon.png'))
-        self.setGeometry(300, 300, 560, 500)
+        self.setGeometry(300, 300, 560, 600)
 
         self.label = QLabel()
         self.label.setProperty("class", "big")
