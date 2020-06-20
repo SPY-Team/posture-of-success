@@ -94,19 +94,19 @@ router.post('/get_graph_data', (req, res) => {
     else {
       let score = 0;
       result.forEach(e => {
-	score += e.dscore;
+        score += e.dscore;
         e.score = Math.floor(score);
-	e.receive_time = moment(e.receive_time).format('MM/DD HH:mm');
+        e.receive_time = moment(e.receive_time).format('MM/DD HH:mm');
       })
       let formatted_result = [];
       const N = 50;
       if (result.length <= N)
 	    formatted_result = result;
       else {
-	for (let i = 0; i<N-1; i++) {
+        for (let i = 0; i<N-1; i++) {
           formatted_result.push(result[Math.floor(i/50*result.length)]);
-	}
-	formatted_result.push(result[result.length-1]);
+        }
+        formatted_result.push(result[result.length-1]);
       }
       res.json({ graph_data: formatted_result });
     }
@@ -115,7 +115,7 @@ router.post('/get_graph_data', (req, res) => {
 
 router.post('/get_leaderboard', (req, res) => {
   var { email } = req.body;
-  var sql = "select score_rank, username, score from ranks";
+  var sql = "select score_rank, username, email, score from ranks";
   var params = [email];
   con.query(sql, params, (err, result) => {
     if (err) { console.log(err); res.json({ success: false }); }
@@ -151,7 +151,5 @@ router.post('/signup', (req, res) => {
     res.json({ success: true });
   });
 });
-
-
 
 module.exports = router;

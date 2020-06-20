@@ -2,6 +2,55 @@ import React, { Component } from "react";
 import { LineChart, XAxis, Tooltip, CartesianGrid, Line, ResponsiveContainer } from "recharts";
 
 export default class extends Component {
+  fetchData() {
+    fetch('/api/get_data', {
+      method: 'post',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email: this.props.token })
+    })
+    .then(res => res.json())
+    .then(json => {
+      this.setState(prevState => ({ ...prevState, ...json }));
+    });
+  }
+
+  fetchGraphData() {
+    fetch('/api/get_graph_data', {
+      method: 'post',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email: this.props.token })
+    })
+    .then(res => res.json())
+    .then(json => {
+      this.setState(json);
+    });
+  }
+
+  fetchRivalGraphData(email) {
+    fetch('/api/get_graph_data', {
+      method: 'post',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email })
+    })
+    .then(res => res.json())
+    .then(json => {
+      console.log(json.graph_data);
+      this.setState(prevState => ({ ...prevState, rival_graph_data: json.graph_data }));
+    });
+  };
+
+  fetchLeaderBoard() {
+    fetch('/api/get_leaderboard', {
+      method: 'post',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email: this.props.token })
+    })
+    .then(res => res.json())
+    .then(json => {
+      json.leaderboard.sort((a, b) => a.score_rank - b.score_rank);
+      this.setState(json);
+    });
+  }
   constructor(props) {
     super(props);
     this.state = { 
@@ -18,40 +67,17 @@ export default class extends Component {
   }
 
   componentDidMount() {
-    setInterval(() => {
-      fetch('/api/get_data', {
-        method: 'post',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ email: this.props.token })
-      })
-      .then(res => res.json())
-      .then(json => {
-        this.setState(prevState => ({...prevState, ...json}));
-      });
-      fetch('/api/get_graph_data', {
-        method: 'post',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ email: this.props.token })
-      })
-      .then(res => res.json())
-      .then(json => {
-        this.setState(json);
-      });
-      fetch('/api/get_leaderboard', {
-        method: 'post',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ email: this.props.token })
-      })
-      .then(res => res.json())
-      .then(json => {
-        json.leaderboard.sort((a, b) => a.score_rank - b.score_rank);
-        this.setState(json);
-      });
-    }, 5000);
+
+    fetchData();
+    fetchGraphData();
+    fetchLeaderBoard();
+
+    setInterval(fetchData, 1000);
+    setInterval(fetchGraphData, 5000);
+    setInterval(fetchLeaderBoard, 5000);
   }
 
   render() {
-
     return (
       <div className="home-container">
         <h1>성공의 자세 🪑</h1>
@@ -80,9 +106,9 @@ export default class extends Component {
             </table>
           </div>
         </div>
-	<div className="card">
-	  <ResponsiveContainer width="100%" height={300}>
-	    <LineChart width={500} height={500}
+        <div className="card">
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart width={500} height={500}
               data={this.state.graph_data}
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
             >
@@ -91,8 +117,8 @@ export default class extends Component {
               <CartesianGrid stroke="#bbb" />
               <Line type="monotone" dataKey="score" stroke="#ff7300" yAxisId={0} />
             </LineChart>
-	  </ResponsiveContainer>
-	</div>
+          </ResponsiveContainer>
+        </div>
         <div className="card">
           <h2>리더보드</h2>
           <table cellSpacing="0" cellPadding="0"> 
@@ -105,7 +131,7 @@ export default class extends Component {
             </thead>
             <tbody>
               { this.state.leaderboard.map((e, i) => 
-                <tr key={i}>
+                <tr key={i} onClick={() => { fetchRivalGraphData(e.email); }}>
                   <td id="ranking">{i+1}</td>
                   <td id="nickname">{e.username}</td>
                   <td id="score">{Math.floor(e.score)}</td>
