@@ -93,8 +93,8 @@ export default class extends Component {
           <div className="card">
             <table>
               <tr>
-                <th>순위 ({Math.floor(this.state.score_rank/this.state.leaderboard.length*10000)/100}%)</th>
-                <td>{this.state.score_rank}위</td>
+                <th>순위</th>
+                <td>{this.state.score_rank}위 (상위 {Math.floor(this.state.score_rank/this.state.leaderboard.length*10000)/100}%)</td>
               </tr>
               <tr>
                 <th>총 사용시간</th>
