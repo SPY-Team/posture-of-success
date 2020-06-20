@@ -93,7 +93,7 @@ export default class extends Component {
           <div className="card">
             <table>
               <tr>
-                <th>순위</th>
+                <th>순위 ({Math.floor(this.state.score_rank/this.state.leaderboard.length*10000)/100}%)</th>
                 <td>{this.state.score_rank}위</td>
               </tr>
               <tr>
@@ -112,7 +112,7 @@ export default class extends Component {
             <ScatterChart 
               width={500} 
               height={500}
-              margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+              margin={{ top: 30, right: 10, left: 10, bottom: 10 }}
             >
               <XAxis
                 dataKey = 'receive_time'
