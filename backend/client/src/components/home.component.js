@@ -47,7 +47,7 @@ export default class extends Component {
         json.leaderboard.sort((a, b) => a.score_rank - b.score_rank);
         this.setState(json);
       });
-    });
+    }, 5000);
   }
 
   render() {
