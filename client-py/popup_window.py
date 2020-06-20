@@ -44,11 +44,19 @@ class GraphView(QGraphicsView):
         pen = QPen(color, 3)
         pen.setCapStyle(Qt.RoundCap)
         self.path = self.scene().addPath(QPainterPath(), pen)
-        self.score_text = self.scene().addText("")
-        self.msg_text = self.scene().addText("")
 
+        self.score_text = self.scene().addText("")
         self.score_text.setDefaultTextColor(color)
+
+        self.msg_text = self.scene().addText("")
         self.msg_text.setDefaultTextColor(color)
+        self.msg_text.setX(0)
+        self.msg_text.setY(0)
+
+        self.sitting_time_text = self.scene().addText("")
+        self.sitting_time_text.setDefaultTextColor(color)
+        self.sitting_time_text.setX(0)
+        self.sitting_time_text.setY(26)
 
         self.score_list = [0]
         self.minimize = False
@@ -63,14 +71,16 @@ class GraphView(QGraphicsView):
         self.scene().setSceneRect(0, 0, size.width(), size.height())
         self.setAlignment(Qt.AlignTop | Qt.AlignLeft)
 
-    def update_score(self, score, msg):
+    def update_score(self, score, msg, sitting_time):
         if msg == "바른 자세":
             self.minimize = True
             self.msg_text.setDocument(make_text("", 24))
         else:
             self.minimize = False
             self.msg_text.setDocument(make_text(msg, 24))
-        self.score_list.append(score)
+        self.sitting_time_text.setDocument(make_text("{:.0f}초".format(sitting_time), 16))
+        if msg != "일어섬":
+            self.score_list.append(score)
 
     def update_screen(self):
         score = self.score_list[-1]
@@ -134,14 +144,12 @@ class Detector(QWidget):
     def __init__(self):
         super().__init__()
 
-        flags = Qt.CustomizeWindowHint | \
-                Qt.WindowStaysOnTopHint | \
-                Qt.FramelessWindowHint | \
-                Qt.WindowDoesNotAcceptFocus | \
-                Qt.Tool | \
-                Qt.X11BypassWindowManagerHint
-
-        self.setWindowFlags(flags)
+        self.setWindowFlags(Qt.CustomizeWindowHint |
+            Qt.WindowStaysOnTopHint |
+            Qt.FramelessWindowHint |
+            Qt.WindowDoesNotAcceptFocus |
+            Qt.Tool |
+            Qt.X11BypassWindowManagerHint)
         self.setProperty("class", "detector")
         self.setAttribute(Qt.WA_TranslucentBackground)
 
