@@ -99,7 +99,7 @@ router.post('/get_graph_data', (req, res) => {
         e.receive_time = moment(e.receive_time).unix();
       })
       let formatted_result = [];
-      const N = 50;
+      const N = 100;
       if (result.length <= N)
 	    formatted_result = result;
       else {

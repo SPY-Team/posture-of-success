@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import moment from "moment";
-import { ScatterChart, XAxis, YAxis, Tooltip, Legend, Scatter, ResponsiveContainer } from "recharts";
+import { ScatterChart, XAxis, YAxis, Tooltip, Legend, Scatter, ResponsiveContainer, CartesianGrid } from "recharts";
 
 export default class extends Component {
   constructor(props) {
@@ -124,12 +124,20 @@ export default class extends Component {
               <YAxis dataKey = 'score' name = 'Score' />
               <Tooltip />
               <Legend />
+              <CartesianGrid />
               <Scatter
                 data = {this.state.graph_data}
                 line = {{ stroke: '#353772', strokeWidth: 2}}
                 lineType = "joint"
                 fill = "#353772"
                 name = {this.state.username}
+              />
+              <Scatter
+                data = {this.state.rival_graph_data}
+                line = {{ stroke: '#353772', strokeWidth: 2}}
+                lineType = "joint"
+                fill = "#353772"
+                name = {this.state.rival}
               />
             </ScatterChart>
           </ResponsiveContainer>
@@ -146,7 +154,7 @@ export default class extends Component {
             </thead>
             <tbody>
               { this.state.leaderboard.map((e, i) => 
-                <tr key={i} onClick={() => { this.fetchRivalGraphData(e.email); }}>
+                <tr key={i} onClick={() => { this.state.rival=e.username; this.fetchRivalGraphData(e.email); }}>
                   <td id="ranking">{i+1}</td>
                   <td id="nickname">{e.username}</td>
                   <td id="score">{Math.floor(e.score)}</td>
