@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import "moment";
+import moment from "moment";
 import { ScatterChart, XAxis, YAxis, Scatter, ResponsiveContainer } from "recharts";
 
 export default class extends Component {
