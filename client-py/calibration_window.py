@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QGraphicsView, QGraphicsScene
-from PyQt5.QtGui import QIcon, QMovie, QPixmap
-from PyQt5.QtCore import pyqtSignal, QCoreApplication, Qt, QUrl
-from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager, QNetworkReply
+from PyQt5.QtGui import QIcon, QMovie, QPixmap, QPen, QBrush, QPainter, QPolygonF
+from PyQt5.QtCore import pyqtSignal, QCoreApplication, Qt, QUrl, QRectF, QPointF
+from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager
 from config import SERVER_BASE_ADDR
 import json
 
@@ -35,15 +35,28 @@ class CalibrationWindow(QWidget):
         self.invalidated = False
 
         self.cnt = 0
-        self.values = (0, 0, 0, 0, 0, 0, 0)
+        self.acc_values = (0, 0, 0, 0, 0, 0, 0)
 
         self.network = QNetworkAccessManager()
-        chair = QGraphicsView()
+        view = QGraphicsView()
+        view.setRenderHint(QPainter.Antialiasing)
         scene = QGraphicsScene()
-        scene.addPixmap(QPixmap("chair.png"))
-        chair.setScene(scene)
-        chair.setFixedWidth(150)
-        chair.setFixedHeight(300)
+        chair = scene.addPixmap(QPixmap("chair.png").scaledToWidth(150))
+        self.lback = scene.addEllipse(QRectF(30, 50, 20, 20), QPen(Qt.NoPen), QBrush(Qt.white))
+        self.rback = scene.addEllipse(QRectF(100, 50, 20, 20), QPen(Qt.NoPen), QBrush(Qt.white))
+        self.lhip = scene.addPolygon(
+            QPolygonF([QPointF(30, 180), QPointF(50, 180), QPointF(50, 170), QPointF(30, 170)]),
+            QPen(Qt.NoPen), QBrush(Qt.white))
+        self.rhip = scene.addPolygon(
+            QPolygonF([QPointF(100, 180), QPointF(120, 180), QPointF(120, 170), QPointF(100, 170)]),
+            QPen(Qt.NoPen), QBrush(Qt.white))
+        self.lthigh = scene.addEllipse(QRectF(30, 200, 20, 10), QPen(Qt.NoPen), QBrush(Qt.white))
+        self.rthigh = scene.addEllipse(QRectF(100, 200, 20, 10), QPen(Qt.NoPen), QBrush(Qt.white))
+        view.setScene(scene)
+        view.setFixedWidth(150)
+        view.setFixedHeight(300)
+        view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.setWindowTitle("센서 조정")
         self.setWindowIcon(QIcon('icon.png'))
@@ -62,12 +75,12 @@ class CalibrationWindow(QWidget):
         layout = QVBoxLayout()
         layout.addStretch(1)
         layout.addWidget(self.label)
-        layout.addWidget(chair)
+        layout.addWidget(view)
+        layout.setAlignment(view, Qt.AlignHCenter)
         layout.addWidget(busy_label)
         layout.addStretch(1)
         layout.setContentsMargins(50, 50, 50, 50)
         layout.setSpacing(20)
-        layout.setAlignment(Qt.AlignHCenter)
 
         frame = QWidget()
         frame.setLayout(layout)
@@ -89,7 +102,7 @@ class CalibrationWindow(QWidget):
     def start(self):
         self.invalidated = True
         self.cnt = 0
-        self.values = (0, 0, 0, 0, 0, 0, 0)
+        self.acc_values = (0, 0, 0, 0, 0, 0, 0)
         self.show()
 
     def device_changed(self, connected):
@@ -117,15 +130,15 @@ class CalibrationWindow(QWidget):
         correct_posture, msg = detect(values)
         if correct_posture:
             self.cnt += 1
-            self.values = tuple(sum(x) for x in zip(values, self.values))
+            self.acc_values = tuple(sum(x) for x in zip(values, self.acc_values))
             msg = "이 자세를 {:.1f}초간 유지해주세요.".format((50 - self.cnt) / 10)
         else:
             self.cnt = 0
-            self.values = (0, 0, 0, 0, 0, 0, 0)
+            self.acc_values = (0, 0, 0, 0, 0, 0, 0)
         self.label.setText("최초 1회 센서 값을 조정합니다.\n바른 자세를 취해주세요.\n" + msg)
 
         if self.cnt >= 50:
-            values = tuple(v / self.cnt for v in self.values)
+            values = tuple(v / self.cnt for v in self.acc_values)
             self.finish(values)
 
     def logout(self):

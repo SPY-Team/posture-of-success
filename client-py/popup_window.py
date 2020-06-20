@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QWidget, QApplication
     QDesktopWidget
 from PyQt5.QtGui import QPolygonF, QPen, QBrush, QColor, QPainter, QFont, QTextDocument, QTextCharFormat, QTextCursor, \
     QCloseEvent, QLinearGradient, QPainterPath
-from PyQt5.QtCore import Qt, QSize, QPointF, QUrl
+from PyQt5.QtCore import Qt, QSize, QPointF, QUrl, QTimer
 from score import ScoreManager
 from PyQt5.QtNetwork import QNetworkRequest, QNetworkAccessManager
 from config import SERVER_BASE_ADDR
@@ -34,11 +34,13 @@ class GraphView(QGraphicsView):
         pen = QPen(color, 3)
         pen.setCapStyle(Qt.RoundCap)
         self.path = self.scene().addPath(QPainterPath(), pen)
-        self.score_text = self.scene().addText("Score")
+        self.score_text = self.scene().addText("")
         self.score_text.setDefaultTextColor(color)
-        self.msg_text = self.scene().addText("Message")
+        self.msg_text = self.scene().addText("")
         self.msg_text.setDefaultTextColor(color)
         self.score_list = [0]
+
+        self.connected_changed(False)
 
     def start(self, score):
         self.score_list = [score]
@@ -51,7 +53,6 @@ class GraphView(QGraphicsView):
     def update_score(self, score, msg):
         self.score_list.append(score)
         self.msg_text.setDocument(make_text(msg, 24))
-        self.update_screen()
 
     def update_screen(self):
         score = self.score_list[-1]
@@ -70,11 +71,14 @@ class GraphView(QGraphicsView):
 
         window_size = 1000
         scores = self.score_list[-window_size:]
+        self.update_graph(scores, width, height)
 
+        self.scene().update()
+
+    def update_graph(self, scores, width, height):
         if len(scores) > 1:
-            min_score = 0
+            min_score = (int(min(scores) + 1) // 100) * 100
             max_score = (int(max(scores) + 1) // 100 + 1) * 100
-            max_score = max(100, max_score)
 
             def get_y(sc):
                 h = height * 0.7
@@ -95,7 +99,13 @@ class GraphView(QGraphicsView):
             polygon = QPolygonF(points)
             self.graph.setPolygon(polygon)
             self.path.setPath(path)
-        self.scene().update()
+        else:
+            self.graph.setPolygon(QPolygonF())
+            self.path.setPath(QPainterPath())
+
+    def connected_changed(self, connected):
+        if not connected:
+            self.msg_text.setDocument(make_text("장치를 연결해 주세요.", 24))
 
 
 class PopupWindow(QWidget):
@@ -121,19 +131,14 @@ class PopupWindow(QWidget):
             Qt.WindowTransparentForInput)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
-        desktop: QDesktopWidget = QApplication.instance().desktop()
-        desktop_rect = desktop.availableGeometry()
-        dpi_x = desktop.logicalDpiX()
-        dpi_y = desktop.logicalDpiY()
-        popup_size = QSize(dpi_x * 5, dpi_y * 3)
-        self.setGeometry(QStyle.alignedRect(Qt.RightToLeft, Qt.AlignVCenter, popup_size, desktop_rect))
+        self.set_size(5, 3)
 
         self.label = QLabel("...")
 
         self.graph_view = GraphView()
 
         layout = QVBoxLayout()
-        layout.addWidget(self.label)
+        # layout.addWidget(self.label)
         layout.addWidget(self.graph_view)
         layout.setContentsMargins(20, 20, 20, 20)
 
@@ -149,7 +154,21 @@ class PopupWindow(QWidget):
         self.setProperty("class", "root")
         self.setContentsMargins(0, 0, 0, 0)
 
+        self.device.connectedChanged.connect(self.graph_view.connected_changed)
         self.device.updateNumber.connect(self.sensor_update)
+
+        self.timer = QTimer()
+        self.timer.setInterval(1000 / 30)
+        self.timer.timeout.connect(self.graph_view.update_screen)
+        self.timer.start()
+
+    def set_size(self, width, height):
+        desktop: QDesktopWidget = QApplication.instance().desktop()
+        desktop_rect = desktop.availableGeometry()
+        dpi_x = desktop.logicalDpiX()
+        dpi_y = desktop.logicalDpiY()
+        popup_size = QSize(dpi_x * width, dpi_y * height)
+        self.setGeometry(QStyle.alignedRect(Qt.RightToLeft, Qt.AlignVCenter, popup_size, desktop_rect))
 
     def start(self):
         print(self.state.sensor_values)
@@ -166,7 +185,7 @@ class PopupWindow(QWidget):
 
         self.show()
 
-    def score_update(self, score):
+    def score_update(self, score, msg):
         if not self.state.is_logged_in():
             return
         self.counter += 1

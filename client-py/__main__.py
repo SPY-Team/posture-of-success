@@ -81,7 +81,6 @@ if __name__ == '__main__':
         height: 20px;
     }
     QGraphicsView {
-        border: none;
         background-color: transparent; 
     }
     """)
@@ -98,7 +97,6 @@ if __name__ == '__main__':
     device = connect.Device()
     device.moveToThread(device_thread)
     device_thread.started.connect(device.run)
-    device_thread.start()
 
     # Login Window
     login = LoginWindow(state, device)
@@ -127,6 +125,8 @@ if __name__ == '__main__':
         popup.logout()
         calib_window.start()
     tray_icon.calibrate.connect(calibrate)
+
+    device_thread.start()
 
     login.show()
 
