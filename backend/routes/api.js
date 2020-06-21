@@ -110,7 +110,7 @@ router.post('/get_graph_data', (req, res) => {
       }
       if (formatted_result.length != 0) {
         formatted_result.push(result[result.length-1]);
-        formatted_result[N-1].receive_time = moment().unix()*1000;
+        formatted_result[formatted_result.length-1].receive_time = moment().unix()*1000;
       }
       res.json({ graph_data: result });
     }
