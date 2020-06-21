@@ -81,7 +81,7 @@ export default class extends Component {
   render() {
     return (
       <div className="home-container">
-        <h1>성공의 자세 🪑</h1>
+        <h1>성공의 자세 <img src="./apple-icon.png"/></h1>
         <div className="card">
           <h3>안녕하세요, {this.state.username}님</h3>
         </div>

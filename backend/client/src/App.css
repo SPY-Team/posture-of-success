@@ -34,6 +34,7 @@ input:-webkit-autofill:active  {
 
 h1 > img {
   height: 1em;
+  bottom: 0px;
 }
 
 .center {
