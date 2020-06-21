@@ -13,7 +13,7 @@ export default class extends Component {
     return (
       <div className="center">
         <div className="card">
-          <h1>성공의 자세 <img src="./favicon-32x32.png"/></h1>
+          <h1>성공의 자세 <img src="./apple_icon.png"/></h1>
           <h3>Posture of Success</h3>
           <input type="text" placeholder="Username" required="" autoFocus=""
             onChange={(e) => { this.setState({ username: e.target.value }); }}
