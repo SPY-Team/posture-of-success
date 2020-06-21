@@ -10,13 +10,6 @@ from config import SERVER_BASE_ADDR
 from graph_view import GraphView
 from score import ScoreManager
 
-WINDOWFLAGS = Qt.CustomizeWindowHint | \
-              Qt.WindowStaysOnTopHint | \
-              Qt.Tool | \
-              Qt.FramelessWindowHint | \
-              Qt.WindowDoesNotAcceptFocus | \
-              Qt.X11BypassWindowManagerHint
-
 
 class Detector(QWidget):
     enter = pyqtSignal(name="enter")
@@ -60,7 +53,12 @@ class PopupWindow(QWidget):
         self.counter = 0
 
         # Setup UI
-        self.setWindowFlags(WINDOWFLAGS)
+        self.setWindowFlags(Qt.CustomizeWindowHint |
+              Qt.WindowStaysOnTopHint |
+              Qt.Tool |
+              Qt.FramelessWindowHint |
+              Qt.WindowDoesNotAcceptFocus |
+              Qt.X11BypassWindowManagerHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
         self.label = QLabel("...")
@@ -99,7 +97,7 @@ class PopupWindow(QWidget):
 
     def update_size(self):
         if self.minimize:
-            width, height = 120, 80
+            width, height = 150, 80
             self.layout.setContentsMargins(10, 10, 10, 10)
         else:
             width, height = 450, 300
