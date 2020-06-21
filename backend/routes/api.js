@@ -87,7 +87,7 @@ router.post('/get_data', (req, res) => {
 
 router.post('/get_graph_data', (req, res) => {
   var { email } = req.body;
-  var sql = "select receive_time, duration, dscore from scores where email=?";
+  var sql = "select receive_time, duration, dscore from scores where email=? order by receive_time";
   var params = [email];
   con.query(sql, params, (err, result) => {
     if (err) { console.log(err); res.json({ success: false }); }
@@ -96,26 +96,30 @@ router.post('/get_graph_data', (req, res) => {
       result.forEach(e => {
         score += e.dscore;
         e.score = Math.floor(score);
-        e.receive_time = moment(e.receive_time).unix();
+        e.receive_time = moment(e.receive_time).unix()*1000;
       })
-      let formatted_result = [];
       const N = 100;
-      if (result.length <= N)
-	    formatted_result = result;
+      let formatted_result = []
+      if (result.length < N) {
+        formatted_result = result;
+      }
       else {
-        for (let i = 0; i<N-1; i++) {
+        for (let i = 0; i < N-1; i++) {
           formatted_result.push(result[Math.floor(i/N*result.length)]);
         }
-        formatted_result.push(result[result.length-1]);
       }
-      res.json({ graph_data: formatted_result });
+      if (formatted_result.length != 0) {
+        formatted_result.push(result[result.length-1]);
+        formatted_result[formatted_result.length-1].receive_time = moment().unix()*1000;
+      }
+      res.json({ graph_data: result });
     }
   });
 });
 
 router.post('/get_leaderboard', (req, res) => {
   var { email } = req.body;
-  var sql = "select score_rank, username, email, score from ranks";
+  var sql = "select score_rank, username, email, score, week_score, week_score_rank from ranks";
   var params = [email];
   con.query(sql, params, (err, result) => {
     if (err) { console.log(err); res.json({ success: false }); }

@@ -167,6 +167,11 @@ tr:nth-child(even) {
   background-color: #dfdfdf;
 }
 
+.leaderboard tr:hover {
+  background-color: #dfdfdf;
+  cursor: pointer;
+}
+
 .leaderboard tr:nth-child(1) td:nth-child(2) {
   color: #e58909
 }
