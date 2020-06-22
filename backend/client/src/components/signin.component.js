@@ -16,7 +16,7 @@ export default class extends Component {
     return (
       <div className="center">
         <div className="card">
-          <h1>성공의 자세 🪑</h1>
+          <h1>성공의 자세 <img src="./apple-icon.png"/></h1>
           <h3>Posture of Success</h3>
           <input type="email" placeholder="Email address" required="" autoFocus=""
             onChange={(e) => { this.setState({ email: e.target.value }); }}

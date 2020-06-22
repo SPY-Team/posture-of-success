@@ -32,6 +32,11 @@ input:-webkit-autofill:active  {
   -webkit-text-fill-color: inherit !important;
 }
 
+h1 > img {
+  height: 1em;
+  bottom: 0px;
+}
+
 .center {
   position: absolute;
   width: 50%;
