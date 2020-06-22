@@ -111,8 +111,7 @@ class PopupWindow(QWidget):
         return desktop_rect, rect
 
     def start(self):
-        print(self.state.sensor_values)
-        self.score_manager = ScoreManager(self.state.score)
+        self.score_manager = ScoreManager(self.state.score, self.state.sensor_values)
         self.graph_view.start(self.state.score)
 
         self.last_score = self.state.score

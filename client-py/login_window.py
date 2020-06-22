@@ -119,7 +119,7 @@ class LoginWindow(QWidget):
             print(reply_json)
             if "success" in reply_json and reply_json["success"]:
                 self.state.login(reply_json["email"], reply_json["score"])
-                self.state.sensor_values = reply_json["sensor_data"]
+                self.state.sensor_values = eval(reply_json["sensor_data"])
                 self.loginSuccess.emit()
                 self.close()
             else:

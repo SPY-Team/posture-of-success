@@ -5,18 +5,21 @@ import math
 class ScoreManager(QObject):
     updateScore = pyqtSignal(float, str, float, name='updateScore')
 
-    def __init__(self, score):
+    def __init__(self, score, calib_values):
         super().__init__()
         self.score = score
         self.x = 0
         self.cooltime = 10
         self.continuous_sitting_time = 0
+        self.calib_values = calib_values
 
     def get_score(self):
         return self.score
 
     def score_update(self, values):
         lhip, lthigh, lback, rhip, rthigh, rback, dist = values
+        clhip, clthigh, clback, crhip, crthigh, crback, cdist = self.calib_values
+
         thigh_imbalance = (lthigh - rthigh) / (lthigh + rthigh + 1)
         msg = ""
 
@@ -41,12 +44,15 @@ class ScoreManager(QObject):
         elif thigh_imbalance < -0.5:
             wrong_posture()
             msg = "허벅지 오른쪽으로 쏠림"
-        elif lhip == 0 and rhip == 0:
+        elif lhip <= max(clhip - 500, 0) and rhip <= max(crhip - 500, 0):
             wrong_posture()
             msg = "둔부를 내민 자세"
         elif lback == 0 and rback == 0:
             wrong_posture()
-            msg = "허리를 숙인 자세"
+            if dist == -1:
+                msg = "뒤로 기댄 자세"
+            else:
+                msg = "허리를 숙인 자세"
         else:
             self.x += 1
             self.score += -math.expm1(-self.x * 0.005)
